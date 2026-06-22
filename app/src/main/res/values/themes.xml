@@ -1,0 +1,13 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+    <!-- Base application theme. -->
+    <style name="Base.Theme.AuthApp" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Customize your light theme here. -->
+        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+    </style>
+
+<!--    <style name="RoleRadioButton" parent="Widget.MaterialComponents.RadioButton">-->
+<!--        <item name="android:textColor">@drawable/rb_text_color_selector</item>-->
+<!--    </style>-->
+
+    <style name="Theme.AuthApp" parent="Base.Theme.AuthApp" />
+</resources>
