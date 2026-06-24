@@ -35,7 +35,8 @@ class ChatRepositoryImpl @Inject constructor(
                 "participants"        to listOf(myUid, otherUid),
                 "lastMessage"         to "",
                 "lastMessageTime"     to 0L,
-                "lastMessageSenderId" to ""
+                "lastMessageSenderId" to "",
+                "unreadBy"            to emptyList<String>()
             )).await()
         }
         chatId
@@ -65,6 +66,11 @@ class ChatRepositoryImpl @Inject constructor(
     override suspend fun sendMessage(chatId: String, senderId: String, text: String): Result<Unit> = runCatching {
         val msgRef = firestore.collection(MESSAGES).document(chatId)
             .collection(MESSAGES).document()
+        val chatSnap = firestore.collection(CHATS).document(chatId).get().await()
+        val participants = chatSnap.get("participants") as? List<String> ?: emptyList()
+
+        val receiverId = participants.firstOrNull { it != senderId } ?: ""
+
 
         val msg = mapOf(
             "id"        to msgRef.id,
@@ -77,9 +83,12 @@ class ChatRepositoryImpl @Inject constructor(
 
         // Update chat preview
         firestore.collection(CHATS).document(chatId).update(
-            "lastMessage",         text.trim(),
-            "lastMessageTime",     System.currentTimeMillis(),
-            "lastMessageSenderId", senderId
+            mapOf(
+                "lastMessage" to text.trim(),
+                "lastMessageTime" to System.currentTimeMillis(),
+                "lastMessageSenderId" to senderId,
+                "unreadBy" to listOf(receiverId)   // ✅ KEY FIX
+            )
         ).await()
     }
 
@@ -91,17 +100,28 @@ class ChatRepositoryImpl @Inject constructor(
                 val chats = snap?.documents?.mapNotNull { doc ->
                     val participants = doc.get("participants") as? List<*>
                     val otherUid = participants?.firstOrNull { it != uid }?.toString() ?: ""
+
+                    val unreadBy = (doc.get("unreadBy") as? List<*>)?.map { it.toString() } ?: emptyList()
+
                     Chat(
                         chatId              = doc.getString("chatId")              ?: "",
                         participants        = participants?.map { it.toString() }  ?: emptyList(),
                         lastMessage         = doc.getString("lastMessage")         ?: "",
                         lastMessageTime     = doc.getLong("lastMessageTime")       ?: 0L,
                         lastMessageSenderId = doc.getString("lastMessageSenderId") ?: "",
-                        otherUserId         = otherUid
+                        otherUserId         = otherUid,
+                        unreadBy            = unreadBy      // ← add this
                     )
                 } ?: emptyList()
                 trySend(chats)
             }
         awaitClose { listener.remove() }
+    }
+    override suspend fun markChatAsRead(chatId: String, userId: String) {
+        val ref = firestore.collection(CHATS).document(chatId)
+
+        ref.update(
+            "unreadBy", com.google.firebase.firestore.FieldValue.arrayRemove(userId)
+        ).await()
     }
 }

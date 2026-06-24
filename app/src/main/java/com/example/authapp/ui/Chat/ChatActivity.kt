@@ -56,6 +56,7 @@ class ChatActivity : AppCompatActivity() {
         // If otherUserId passed (from profile) create/get chat first
         if (chatId.isNotEmpty()) {
             viewModel.initWithChatId(chatId)
+            viewModel.markChatAsRead(chatId)
         } else if (otherUserId.isNotEmpty()) {
             viewModel.openChat(otherUserId)
         }
@@ -83,8 +84,12 @@ class ChatActivity : AppCompatActivity() {
                 launch {
                     viewModel.events.collect { event ->
                         when (event) {
-                            is ChatEvent.Error -> Toast.makeText(this@ChatActivity, event.message, Toast.LENGTH_SHORT).show()
-                            else -> { }
+                            is ChatEvent.ChatReady -> {
+                                viewModel.markChatAsRead(event.chatId)
+                            }
+                            is ChatEvent.Error -> {
+                                Toast.makeText(this@ChatActivity, event.message, Toast.LENGTH_SHORT).show()
+                            }
                         }
                     }
                 }

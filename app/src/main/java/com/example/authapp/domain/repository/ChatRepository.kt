@@ -17,4 +17,7 @@ interface ChatRepository {
 
     /** Get all chats for a user — real-time */
     fun getInbox(uid: String): Flow<List<Chat>>
+
+    suspend fun markChatAsRead(chatId: String, userId: String)
+
 }

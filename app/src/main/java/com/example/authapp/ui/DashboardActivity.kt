@@ -109,6 +109,13 @@ class DashboardActivity : AppCompatActivity() {
             startActivity(Intent(this, MyAppointmentsActivity::class.java))
         }
 
+
+        findViewById<CardView>(R.id.cardProfile).setOnClickListener {
+            startActivity(Intent(this, ProfileActivity::class.java))
+        }
+
+
+
          }
 
     private fun setupVetDashboard() {
@@ -119,16 +126,17 @@ class DashboardActivity : AppCompatActivity() {
         findViewById<View>(R.id.rowVet1).visibility   = View.VISIBLE
         findViewById<View>(R.id.rowVet2).visibility   = View.VISIBLE
 
-
         findViewById<CardView>(R.id.cardVetAppointments).setOnClickListener {
             startActivity(Intent(this, VetAppointmentsActivity::class.java))
         }
         findViewById<CardView>(R.id.cardVetProfile).setOnClickListener {
             startActivity(Intent(this, com.example.authapp.ui.Vets.VetProfileSetupActivity::class.java))
         }
-
         findViewById<CardView>(R.id.cardVetMessages).setOnClickListener {
             startActivity(Intent(this, InboxActivity::class.java))
+        }
+        findViewById<CardView>(R.id.cardVetProfile).setOnClickListener {
+            startActivity(Intent(this, ProfileActivity::class.java))
         }
         // Stubs for vet cards
         findViewById<CardView>(R.id.cardPatients).setOnClickListener     { toast("My Patients — coming soon") }

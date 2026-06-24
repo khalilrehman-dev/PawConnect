@@ -42,10 +42,17 @@ class ChatViewModel @Inject constructor(
         viewModelScope.launch {
             chatRepository.getInbox(uid).collect { chats ->
                 // Count chats where last message was not sent by me
-                _unreadCount.value = chats.count {
-                    it.lastMessageSenderId != uid && it.lastMessage.isNotEmpty()
+                _unreadCount.value = chats.count { chat ->
+                    chat.unreadBy.contains(uid)
                 }
             }
+        }
+    }
+
+    fun markChatAsRead(chatId: String) {
+        val uid = authRepository.getCurrentUid() ?: return
+        viewModelScope.launch {
+            chatRepository.markChatAsRead(chatId, uid)
         }
     }
 
@@ -55,13 +62,15 @@ class ChatViewModel @Inject constructor(
         val uid = authRepository.getCurrentUid() ?: return
         viewModelScope.launch {
             chatRepository.getInbox(uid).collect { chats ->
-                // Fetch display name for each chat's other user
                 val enriched = chats.map { chat ->
                     val name = try {
                         val result = authRepository.getUserFromFirestore(chat.otherUserId)
                         if (result.isSuccess) result.getOrThrow().displayName
                         else "User"
-                    } catch (e: Exception) { "User" }
+                    } catch (e: Exception) {
+                        "User"
+                    }
+
                     chat.copy(otherUserName = name)
                 }
                 _inbox.value = enriched

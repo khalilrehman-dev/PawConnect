@@ -54,13 +54,29 @@
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tvTime"
+        <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="12:00"
-            android:textSize="11sp"
-            android:textColor="#AAAAAA" />
+            android:orientation="vertical"
+            android:gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/tvTime"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="12:00"
+                android:textSize="11sp"
+                android:textColor="#AAAAAA" />
+
+            <View
+                android:id="@+id/viewUnreadDot"
+                android:layout_width="10dp"
+                android:layout_height="10dp"
+                android:layout_marginTop="6dp"
+                android:background="@drawable/badge_background"
+                android:visibility="gone" />
+
+        </LinearLayout>
 
     </LinearLayout>
 </androidx.cardview.widget.CardView>

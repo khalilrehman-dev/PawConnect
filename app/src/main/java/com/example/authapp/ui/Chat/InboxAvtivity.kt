@@ -34,7 +34,7 @@ class InboxActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerView)
         tvEmpty      = findViewById(R.id.tvEmpty)
 
-        adapter = InboxAdapter { chat ->
+        adapter = InboxAdapter(viewModel.myUid) { chat ->
             startActivity(Intent(this, ChatActivity::class.java).apply {
                 putExtra("chatId",      chat.chatId)
                 putExtra("otherUserId", chat.otherUserId)
@@ -72,8 +72,9 @@ class InboxActivity : AppCompatActivity() {
 // ── InboxAdapter ──────────────────────────────────────────────────────────────
 
 class InboxAdapter(
+    private val myUid: String,
     private val onClick: (Chat) -> Unit
-) : RecyclerView.Adapter<InboxAdapter.ViewHolder>() {
+) : RecyclerView.Adapter<InboxAdapter.ViewHolder>() {  // ← missing { was here
 
     private val items = mutableListOf<Chat>()
 
@@ -84,7 +85,10 @@ class InboxAdapter(
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
-        ViewHolder(LayoutInflater.from(parent.context).inflate(R.layout.item_inbox, parent, false))
+        ViewHolder(
+            LayoutInflater.from(parent.context)
+                .inflate(R.layout.item_inbox, parent, false)
+        )
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) =
         holder.bind(items[position])
@@ -97,11 +101,20 @@ class InboxAdapter(
         private val tvTime: TextView        = itemView.findViewById(R.id.tvTime)
 
         fun bind(chat: Chat) {
+            val isUnread = chat.unreadBy.contains(myUid)
+
             tvName.text        = chat.otherUserName.ifEmpty { "User" }
             tvLastMessage.text = chat.lastMessage.ifEmpty { "No messages yet" }
             tvTime.text        = if (chat.lastMessageTime > 0)
                 android.text.format.DateFormat.format("hh:mm a", chat.lastMessageTime).toString()
             else ""
+
+            val unreadDot = itemView.findViewById<View>(R.id.viewUnreadDot)
+            unreadDot.visibility = if (isUnread) View.VISIBLE else View.GONE
+
+            tvName.setTypeface(null, if (isUnread) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
+            tvLastMessage.setTypeface(null, if (isUnread) android.graphics.Typeface.BOLD else android.graphics.Typeface.NORMAL)
+
             itemView.setOnClickListener { onClick(chat) }
         }
     }
