@@ -1,4 +1,4 @@
-package com.example.authapp.ui.Pets
+package com.example.authapp.ui.pets
 
 import android.content.Intent
 import android.os.Bundle
@@ -80,6 +80,22 @@ class PetDetailActivity : AppCompatActivity() {
             startActivity(Intent(this, ChatActivity::class.java).apply {
                 putExtra("otherUserId", pet.ownerId)
                 putExtra("otherName",   "Pet Owner")
+            })
+        }
+
+        val btnEdit = findViewById<Button>(R.id.btnEdit)
+        btnEdit.visibility = if (isOwner) View.VISIBLE else View.GONE
+        btnEdit.setOnClickListener {
+            startActivity(Intent(this, EditPetActivity::class.java).apply {
+                putExtra("petId",      pet.id)
+                putExtra("ownerId",    pet.ownerId)
+                putExtra("petName",    pet.name)
+                putExtra("petSpecies", pet.species)
+                putExtra("petBreed",   pet.breed)
+                putExtra("petAge",     pet.age)
+                putExtra("petGender",  pet.gender)
+                putExtra("petDesc",    pet.description)
+                putExtra("petImage",   pet.imageUrl)
             })
         }
     }

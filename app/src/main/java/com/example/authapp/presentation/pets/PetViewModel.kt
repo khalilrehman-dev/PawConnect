@@ -122,6 +122,63 @@ class PetViewModel @Inject constructor(
         }
     }
 
+    fun editPet(
+        petId: String,
+        ownerId: String,
+        name: String,
+        species: String,
+        breed: String,
+        age: String,
+        gender: String,
+        description: String,
+        existingImageUrl: String
+    ) {
+        if (name.isBlank())    { _actionState.value = PetActionState.Error("Enter pet name"); return }
+        if (species.isBlank()) { _actionState.value = PetActionState.Error("Select species"); return }
+        if (breed.isBlank())   { _actionState.value = PetActionState.Error("Enter breed"); return }
+        if (age.isBlank() || age.toIntOrNull() == null) { _actionState.value = PetActionState.Error("Enter valid age"); return }
+        if (gender.isBlank())  { _actionState.value = PetActionState.Error("Select gender"); return }
+
+        viewModelScope.launch {
+            _actionState.value = PetActionState.Loading
+
+            // If new image selected upload it, otherwise keep existing
+            val imageUrl = if (pendingImageBytes != null) {
+                val imageResult = petRepository.uploadPetImage(petId, pendingImageBytes!!)
+                if (imageResult.isFailure) {
+                    _actionState.value = PetActionState.Error("Image upload failed")
+                    return@launch
+                }
+                pendingImageBytes = null
+                imageResult.getOrThrow()
+            } else {
+                existingImageUrl
+            }
+
+            val updatedPet = Pet(
+                id          = petId,
+                ownerId     = ownerId,
+                name        = name.trim(),
+                species     = species,
+                breed       = breed.trim(),
+                age         = age.toInt(),
+                gender      = gender,
+                description = description.trim(),
+                imageUrl    = imageUrl
+            )
+
+            val result = petRepository.updatePet(updatedPet)
+            if (result.isSuccess) {
+                _actionState.value = PetActionState.Success
+                _events.send(PetEvent.NavigateBack)
+            } else {
+                _actionState.value = PetActionState.Error(
+                    result.exceptionOrNull()?.message ?: "Failed to update pet"
+                )
+            }
+        }
+    }
+
     fun clearActionState() { _actionState.value = PetActionState.Idle }
 }
 
