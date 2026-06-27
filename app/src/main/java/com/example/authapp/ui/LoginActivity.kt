@@ -133,10 +133,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    /**
-     * Phone OTP must start from an Activity (Firebase SDK requirement).
-     * Only this initiation stays here — the actual sign-in goes through OtpViewModel.
-     */
+
     private fun initiatePhoneLogin() {
         val phone = etPhone.text.toString().trim()
         if (!ValidationUtils.isValidPhone(phone)) {

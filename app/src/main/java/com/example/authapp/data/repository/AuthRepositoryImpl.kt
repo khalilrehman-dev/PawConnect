@@ -105,9 +105,23 @@ class AuthRepositoryImpl @Inject constructor(
         firestore.collection(USERS).document(uid).update("role", role).await()
     }
 
-    override suspend fun updateUserProfile(uid: String, displayName: String, phone: String): Result<Unit> = runCatching {
-        firestore.collection(USERS).document(uid)
-            .update("displayName", displayName, "phoneNumber", phone).await()
+    override suspend fun updateUserProfile(
+        uid: String,
+        displayName: String,
+        phone: String,
+        profileImageUrl: String
+    ): Result<Unit> = runCatching {
+
+        firestore.collection(USERS)
+            .document(uid)
+            .update(
+                mapOf(
+                    "displayName" to displayName,
+                    "phoneNumber" to phone,
+                    "profileImageUrl" to profileImageUrl
+                )
+            )
+            .await()
     }
 
     override fun isLoggedIn(): Boolean = auth.currentUser != null

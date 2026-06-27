@@ -21,10 +21,24 @@
             android:padding="24dp"
             android:layout_marginBottom="16dp">
 
-            <View
-                android:layout_width="80dp"
-                android:layout_height="80dp"
-                android:background="@drawable/chip_dark_background" />
+            <ImageView
+                android:id="@+id/ivProfileImage"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:background="#F0F0F0"
+                android:scaleType="centerCrop"
+                android:src="@drawable/ic_pet_placeholder" />
+
+            <TextView
+                android:id="@+id/tvChangePhoto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:padding="4dp"
+                android:text="📷 Change Photo"
+                android:textColor="#FF6B35"
+                android:textStyle="bold"
+                android:visibility="gone"/>
 
             <TextView
                 android:id="@+id/tvName"

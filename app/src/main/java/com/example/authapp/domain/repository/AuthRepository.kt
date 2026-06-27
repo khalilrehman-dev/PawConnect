@@ -16,8 +16,12 @@ interface AuthRepository {
     suspend fun saveUserToFirestore(user: User): Result<Unit>
     suspend fun getUserFromFirestore(uid: String): Result<User>
     suspend fun updateUserRole(uid: String, role: String): Result<Unit>
-    suspend fun updateUserProfile(uid: String, displayName: String, phone: String): Result<Unit>
-    fun isLoggedIn(): Boolean
+    suspend fun updateUserProfile(
+        uid: String,
+        displayName: String,
+        phone: String,
+        profileImageUrl: String
+    ): Result<Unit>    fun isLoggedIn(): Boolean
     fun getCurrentUid(): String?
     suspend fun logout(): Result<Unit>
 }

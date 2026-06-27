@@ -11,6 +11,36 @@
         android:orientation="vertical"
         android:padding="16dp">
 
+        <!-- Photo Picker -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/card_background"
+            android:padding="20dp"
+            android:layout_marginBottom="16dp">
+
+            <ImageView
+                android:id="@+id/ivVetPhoto"
+                android:layout_width="100dp"
+                android:layout_height="100dp"
+                android:scaleType="centerCrop"
+                android:background="#F0F0F0"
+                android:src="@drawable/ic_pet_placeholder" />
+
+            <TextView
+                android:id="@+id/tvAddPhoto"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="8dp"
+                android:padding="6dp"
+                android:text="📷 Add Profile Photo (Optional)"
+                android:textColor="#666666"
+                android:textSize="13sp" />
+
+        </LinearLayout>
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -143,8 +173,8 @@
                 android:id="@+id/actvSpecialization"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:inputType="none"
-                android:focusable="false" />
+                android:focusable="false"
+                android:inputType="none" />
 
         </com.google.android.material.textfield.TextInputLayout>
 
