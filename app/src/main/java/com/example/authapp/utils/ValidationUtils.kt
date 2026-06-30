@@ -4,7 +4,10 @@ object ValidationUtils {
 
     // Check if email format is valid
     fun isValidEmail(email: String): Boolean {
-        return android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+        val emailRegex = Regex(
+            "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+        )
+        return emailRegex.matches(email)
     }
 
     // Check if phone number is valid (10 digits minimum)
