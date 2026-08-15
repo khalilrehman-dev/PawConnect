@@ -57,20 +57,17 @@ class DashboardActivity : AppCompatActivity() {
 
                 // Show correct dashboard based on role
                 if (user.role == "veterinarian") {
-                    // Enforce vet profile completion before letting them into the dashboard
-                    val vetResult = vetRepository.getVetById(uid)
-                    if (vetResult.isFailure) {
-                        startActivity(
-                            Intent(this@DashboardActivity, com.example.authapp.ui.Vets.VetProfileSetupActivity::class.java).apply {
-                                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            }
-                        )
-                        finish()
-                        return@launch
-                    }
+
                     setupVetDashboard()
+                    updateVetProfileReminder(uid)
+
                 } else {
+
                     setupOwnerDashboard()
+
+                    findViewById<CardView>(
+                        R.id.cardVetProfileReminder
+                    ).visibility = View.GONE
                 }
 
                 // Show unread badge on owner + vet message cards
@@ -96,6 +93,47 @@ class DashboardActivity : AppCompatActivity() {
             }
         }
     }
+private suspend fun updateVetProfileReminder(
+    uid: String
+) {
+
+    val reminder =
+        findViewById<CardView>(
+            R.id.cardVetProfileReminder
+        )
+
+    val result =
+        vetRepository.isVetProfileComplete(uid)
+
+    if (result.isSuccess) {
+
+        val complete =
+            result.getOrThrow()
+
+        reminder.visibility =
+            if (complete) {
+                View.GONE
+            } else {
+                View.VISIBLE
+            }
+
+    } else {
+
+        // Network failure must not be treated
+        // as an incomplete profile.
+        reminder.visibility = View.GONE
+    }
+
+    reminder.setOnClickListener {
+        startActivity(
+            Intent(
+                this,
+                ProfileActivity::class.java
+            )
+        )
+    }
+}
+
 
     private fun setupOwnerDashboard() {
         // Show owner rows, hide vet rows
@@ -144,14 +182,7 @@ class DashboardActivity : AppCompatActivity() {
         findViewById<CardView>(R.id.cardVetAppointments).setOnClickListener {
             startActivity(Intent(this, VetAppointmentsActivity::class.java))
         }
-        findViewById<CardView>(R.id.cardVetProfile).setOnClickListener {
-            startActivity(
-                Intent(
-                    this,
-                    com.example.authapp.ui.Vets.VetProfileSetupActivity::class.java
-                )
-            )
-        }
+
         findViewById<CardView>(R.id.cardVetMessages).setOnClickListener {
             startActivity(Intent(this, InboxActivity::class.java))
         }

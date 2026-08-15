@@ -20,6 +20,7 @@ class VetProfileSetupViewModel @Inject constructor(
         object Loading : UiState()
         object Success : UiState()
         data class Error(val message: String) : UiState()
+
     }
 
     private val _uiState = MutableStateFlow<UiState>(UiState.Idle)
@@ -34,7 +35,8 @@ class VetProfileSetupViewModel @Inject constructor(
         phoneNumber: String,
         specialization: String,
         yearsOfExperience: Int,
-        profileImageUrl: String
+        profileImageUrl: String,
+        createdAt: Long = 0L
     ) {
         viewModelScope.launch {
             _uiState.value = UiState.Loading

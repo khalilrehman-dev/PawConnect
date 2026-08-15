@@ -7,6 +7,7 @@ import com.google.firebase.auth.PhoneAuthProvider
 import com.google.firebase.firestore.FirebaseFirestore
 import kotlinx.coroutines.tasks.await
 import javax.inject.Inject
+import com.google.firebase.auth.EmailAuthProvider
 import javax.inject.Singleton
 
 @Singleton
@@ -146,20 +147,72 @@ class AuthRepositoryImpl @Inject constructor(
         profileImageUrl: String
     ): Result<Unit> = runCatching {
 
-        firestore.collection(USERS)
-            .document(uid)
-            .update(
-                mapOf(
-                    "displayName" to displayName,
-                    "phoneNumber" to phone,
-                    "profileImageUrl" to profileImageUrl
+        val userRef =
+            firestore.collection(USERS)
+                .document(uid)
+
+        val userSnapshot =
+            userRef.get().await()
+
+        if (!userSnapshot.exists()) {
+            error("User profile not found")
+        }
+
+        val updates = mapOf(
+            "displayName" to displayName,
+            "phoneNumber" to phone,
+            "profileImageUrl" to profileImageUrl
+        )
+
+        val batch = firestore.batch()
+
+        batch.update(
+            userRef,
+            updates
+        )
+
+        if (
+            userSnapshot.getString("role") ==
+            "veterinarian"
+        ) {
+
+            val vetRef =
+                firestore.collection("vets")
+                    .document(uid)
+
+            val vetSnapshot =
+                vetRef.get().await()
+
+            if (vetSnapshot.exists()) {
+                batch.update(
+                    vetRef,
+                    updates
                 )
-            )
-            .await()
+            }
+        }
+
+        batch.commit().await()
     }
 
-    override fun isLoggedIn(): Boolean = auth.currentUser != null
-    override fun getCurrentUid(): String? = auth.currentUser?.uid
+    override fun isLoggedIn(): Boolean =
+        auth.currentUser != null
+
+    override fun isCurrentUserEmailAuth(): Boolean {
+        return auth.currentUser
+            ?.providerData
+            ?.any { provider ->
+                provider.providerId == EmailAuthProvider.PROVIDER_ID
+            } == true
+    }
+
+    override fun isCurrentUserEmailVerified(): Boolean =
+        auth.currentUser?.isEmailVerified == true
+
+    override fun getCurrentUserEmail(): String? =
+        auth.currentUser?.email
+
+    override fun getCurrentUid(): String? =
+        auth.currentUser?.uid
 
     override suspend fun logout(): Result<Unit> = runCatching { auth.signOut() }
 

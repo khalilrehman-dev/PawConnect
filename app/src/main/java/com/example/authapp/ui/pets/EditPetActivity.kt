@@ -41,7 +41,6 @@ class EditPetActivity : AppCompatActivity() {
 
     // Data passed from PetDetailActivity
     private var petId: String        = ""
-    private var ownerId: String      = ""
     private var existingImageUrl: String = ""
 
     private val pickImage = registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -61,7 +60,6 @@ class EditPetActivity : AppCompatActivity() {
 
         // Read all pet data from intent
         petId            = intent.getStringExtra("petId")      ?: ""
-        ownerId          = intent.getStringExtra("ownerId")    ?: ""
         existingImageUrl = intent.getStringExtra("petImage")   ?: ""
 
         bindViews()
@@ -74,22 +72,20 @@ class EditPetActivity : AppCompatActivity() {
 
         btnSave.setOnClickListener {
             viewModel.editPet(
-                petId            = petId,
-                ownerId          = ownerId,
-                name             = etName.text.toString(),
-                species          = spinnerSpecies.selectedItem.toString(),
-                breed            = etBreed.text.toString(),
-                age              = etAge.text.toString(),
-                gender           = spinnerGender.selectedItem.toString(),
-                description      = etDescription.text.toString(),
-                existingImageUrl = existingImageUrl
+                petId = petId,
+                name = etName.text.toString(),
+                species = spinnerSpecies.selectedItem.toString(),
+                breed = etBreed.text.toString(),
+                age = etAge.text.toString(),
+                gender = spinnerGender.selectedItem.toString(),
+                description = etDescription.text.toString()
             )
-        }
 
         supportActionBar?.apply {
             title = "Edit Pet"
             setDisplayHomeAsUpEnabled(true)
         }
+    }
     }
 
     private fun bindViews() {

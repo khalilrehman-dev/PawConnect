@@ -2,8 +2,9 @@ package com.example.authapp.ui
 
 import android.content.Intent
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import androidx.appcompat.app.AppCompatActivity
 import com.example.authapp.R
 import com.example.authapp.domain.repository.AuthRepository
@@ -20,16 +21,75 @@ class SplashActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
 
-        Handler(Looper.getMainLooper()).postDelayed({
-            val dest = if (authRepository.isLoggedIn()) DashboardActivity::class.java
-            else WelcomeActivity::class.java
-            startActivity(Intent(this, dest).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            })
-        }, 1500)
+        lifecycleScope.launch {
+            delay(1500)
+            routeUser()
+        }
 
-        // TESTING ONLY — remove before publishing
-        FirebaseAuth.getInstance().firebaseAuthSettings
-            .setAppVerificationDisabledForTesting(true)
+
+    }
+    private suspend fun routeUser() {
+
+        if (!authRepository.isLoggedIn()) {
+            openWelcome()
+            return
+        }
+
+        // Phone-only user
+        if (!authRepository.isCurrentUserEmailAuth()) {
+            openDashboard()
+            return
+        }
+
+        // Email/password user
+        val refreshedUser = authRepository.reloadAndGetUser()
+
+        val verified =
+            if (refreshedUser.isSuccess) {
+                refreshedUser.getOrThrow().isEmailVerified
+            } else {
+                authRepository.isCurrentUserEmailVerified()
+            }
+
+        if (verified) {
+            openDashboard()
+        } else {
+            openEmailVerification()
+        }
+    }
+    private fun openWelcome() {
+        startActivity(
+            Intent(this, WelcomeActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+        )
+        finish()
+    }
+
+    private fun openDashboard() {
+        startActivity(
+            Intent(this, DashboardActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+        )
+        finish()
+    }
+
+    private fun openEmailVerification() {
+        startActivity(
+            Intent(this, OtpActivity::class.java).apply {
+                putExtra("type", "email")
+                putExtra(
+                    "email",
+                    authRepository.getCurrentUserEmail().orEmpty()
+                )
+
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+        )
+        finish()
     }
 }

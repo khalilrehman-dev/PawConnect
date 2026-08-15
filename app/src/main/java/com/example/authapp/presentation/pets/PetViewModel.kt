@@ -62,10 +62,24 @@ class PetViewModel @Inject constructor(
 
         // Validate
         if (name.isBlank())    { _actionState.value = PetActionState.Error("Enter pet name"); return }
-        if (species.isBlank()) { _actionState.value = PetActionState.Error("Select species"); return }
+        if (
+            species.isBlank() ||
+            species == "Select Species"
+        ) {
+            _actionState.value =
+                PetActionState.Error("Select species")
+            return
+        }
         if (breed.isBlank())   { _actionState.value = PetActionState.Error("Enter breed"); return }
         if (age.isBlank() || age.toIntOrNull() == null) { _actionState.value = PetActionState.Error("Enter valid age"); return }
-        if (gender.isBlank())  { _actionState.value = PetActionState.Error("Select gender"); return }
+        if (
+            gender.isBlank() ||
+            gender == "Select Gender"
+        ) {
+            _actionState.value =
+                PetActionState.Error("Select gender")
+            return
+        }
         if (pendingImageBytes == null) { _actionState.value = PetActionState.Error("Please upload a photo"); return }
 
         viewModelScope.launch {
@@ -109,72 +123,201 @@ class PetViewModel @Inject constructor(
 
     // ── Delete ────────────────────────────────────────────────────────────────
 
-    fun deletePet(pet: Pet) {
+    fun deletePet(petId: String) {
+
+        val uid = authRepository.getCurrentUid() ?: run {
+            _actionState.value =
+                PetActionState.Error("Session expired")
+            return
+        }
+
         viewModelScope.launch {
-            _actionState.value = PetActionState.Loading
-            val result = petRepository.deletePet(pet.id, pet.imageUrl)
+
+            _actionState.value =
+                PetActionState.Loading
+
+            val petResult =
+                petRepository.getPetById(petId)
+
+            if (petResult.isFailure) {
+                _actionState.value =
+                    PetActionState.Error("Pet not found")
+                return@launch
+            }
+
+            val storedPet =
+                petResult.getOrThrow()
+
+            if (storedPet.ownerId != uid) {
+                _actionState.value =
+                    PetActionState.Error(
+                        "You can only delete your own pet"
+                    )
+                return@launch
+            }
+
+            val result =
+                petRepository.deletePet(
+                    storedPet.id,
+                    storedPet.imageUrl
+                )
+
             if (result.isSuccess) {
-                _actionState.value = PetActionState.Success
-                loadMyPets() // refresh list
+
+                _actionState.value =
+                    PetActionState.Success
+
+                loadMyPets()
+
             } else {
-                _actionState.value = PetActionState.Error(result.exceptionOrNull()?.message ?: "Failed to delete pet")
+
+                _actionState.value =
+                    PetActionState.Error(
+                        result.exceptionOrNull()?.message
+                            ?: "Failed to delete pet"
+                    )
             }
         }
     }
 
     fun editPet(
         petId: String,
-        ownerId: String,
         name: String,
         species: String,
         breed: String,
         age: String,
         gender: String,
-        description: String,
-        existingImageUrl: String
+        description: String
     ) {
-        if (name.isBlank())    { _actionState.value = PetActionState.Error("Enter pet name"); return }
-        if (species.isBlank()) { _actionState.value = PetActionState.Error("Select species"); return }
-        if (breed.isBlank())   { _actionState.value = PetActionState.Error("Enter breed"); return }
-        if (age.isBlank() || age.toIntOrNull() == null) { _actionState.value = PetActionState.Error("Enter valid age"); return }
-        if (gender.isBlank())  { _actionState.value = PetActionState.Error("Select gender"); return }
+
+        val uid = authRepository.getCurrentUid() ?: run {
+            _actionState.value =
+                PetActionState.Error("Session expired")
+            return
+        }
+
+        if (name.isBlank()) {
+            _actionState.value =
+                PetActionState.Error("Enter pet name")
+            return
+        }
+
+        if (
+            species.isBlank() ||
+            species == "Select Species"
+        ) {
+            _actionState.value =
+                PetActionState.Error("Select species")
+            return
+        }
+
+        if (breed.isBlank()) {
+            _actionState.value =
+                PetActionState.Error("Enter breed")
+            return
+        }
+
+        if (
+            age.isBlank() ||
+            age.toIntOrNull() == null
+        ) {
+            _actionState.value =
+                PetActionState.Error("Enter valid age")
+            return
+        }
+
+        if (
+            gender.isBlank() ||
+            gender == "Select Gender"
+        ) {
+            _actionState.value =
+                PetActionState.Error("Select gender")
+            return
+        }
 
         viewModelScope.launch {
-            _actionState.value = PetActionState.Loading
 
-            // If new image selected upload it, otherwise keep existing
-            val imageUrl = if (pendingImageBytes != null) {
-                val imageResult = petRepository.uploadPetImage(petId, pendingImageBytes!!)
-                if (imageResult.isFailure) {
-                    _actionState.value = PetActionState.Error("Image upload failed")
-                    return@launch
-                }
-                pendingImageBytes = null
-                imageResult.getOrThrow()
-            } else {
-                existingImageUrl
+            _actionState.value =
+                PetActionState.Loading
+
+            // Get authoritative pet from Firestore.
+            val petResult =
+                petRepository.getPetById(petId)
+
+            if (petResult.isFailure) {
+                _actionState.value =
+                    PetActionState.Error("Pet not found")
+                return@launch
             }
 
-            val updatedPet = Pet(
-                id          = petId,
-                ownerId     = ownerId,
-                name        = name.trim(),
-                species     = species,
-                breed       = breed.trim(),
-                age         = age.toInt(),
-                gender      = gender,
-                description = description.trim(),
-                imageUrl    = imageUrl
-            )
+            val existingPet =
+                petResult.getOrThrow()
 
-            val result = petRepository.updatePet(updatedPet)
-            if (result.isSuccess) {
-                _actionState.value = PetActionState.Success
-                _events.send(PetEvent.NavigateBack)
-            } else {
-                _actionState.value = PetActionState.Error(
-                    result.exceptionOrNull()?.message ?: "Failed to update pet"
+            // Never trust ownerId passed through Intent.
+            if (existingPet.ownerId != uid) {
+                _actionState.value =
+                    PetActionState.Error(
+                        "You can only edit your own pet"
+                    )
+                return@launch
+            }
+
+            val imageUrl =
+                if (pendingImageBytes != null) {
+
+                    val imageResult =
+                        petRepository.uploadPetImage(
+                            petId,
+                            pendingImageBytes!!
+                        )
+
+                    if (imageResult.isFailure) {
+                        _actionState.value =
+                            PetActionState.Error(
+                                "Image upload failed"
+                            )
+                        return@launch
+                    }
+
+                    pendingImageBytes = null
+
+                    imageResult.getOrThrow()
+
+                } else {
+
+                    existingPet.imageUrl
+                }
+
+            val updatedPet =
+                existingPet.copy(
+                    name = name.trim(),
+                    species = species,
+                    breed = breed.trim(),
+                    age = age.toInt(),
+                    gender = gender,
+                    description = description.trim(),
+                    imageUrl = imageUrl
                 )
+
+            val result =
+                petRepository.updatePet(updatedPet)
+
+            if (result.isSuccess) {
+
+                _actionState.value =
+                    PetActionState.Success
+
+                _events.send(
+                    PetEvent.NavigateBack
+                )
+
+            } else {
+
+                _actionState.value =
+                    PetActionState.Error(
+                        result.exceptionOrNull()?.message
+                            ?: "Failed to update pet"
+                    )
             }
         }
     }

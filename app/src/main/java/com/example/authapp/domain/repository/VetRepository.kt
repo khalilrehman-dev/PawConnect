@@ -6,4 +6,5 @@ interface VetRepository {
     suspend fun saveVetProfile(vet: Vet): Result<Unit>
     suspend fun getVetById(uid: String): Result<Vet>
     suspend fun getAllVets(): Result<List<Vet>>
-}
+
+    suspend fun isVetProfileComplete(uid: String): Result<Boolean>}

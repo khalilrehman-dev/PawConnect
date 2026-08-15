@@ -149,6 +149,16 @@
         </LinearLayout>
 
         <Button
+            android:id="@+id/btnVetProfessionalProfile"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginBottom="10dp"
+            android:text="Professional Vet Profile"
+            android:textColor="#FFFFFF"
+            android:backgroundTint="#FF6B35"
+            android:visibility="gone" />
+
+        <Button
             android:id="@+id/btnEdit"
             android:layout_width="match_parent"
             android:layout_height="52dp"

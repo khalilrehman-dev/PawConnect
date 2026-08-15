@@ -1,5 +1,6 @@
 package com.example.authapp.ui
 
+import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
@@ -18,6 +19,7 @@ import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
+import com.example.authapp.ui.Vets.VetProfileSetupActivity
 
 @AndroidEntryPoint
 class ProfileActivity : AppCompatActivity() {
@@ -43,6 +45,8 @@ class ProfileActivity : AppCompatActivity() {
 
     private var selectedImageBytes: ByteArray? = null
     private var currentImageUrl = ""
+
+    private lateinit var btnVetProfessionalProfile: Button
 
     private val pickImage =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -71,6 +75,7 @@ class ProfileActivity : AppCompatActivity() {
         etPhone     = findViewById(R.id.etPhone)
         btnEdit     = findViewById(R.id.btnEdit)
         btnSave     = findViewById(R.id.btnSave)
+        btnVetProfessionalProfile = findViewById(R.id.btnVetProfessionalProfile)
         progressBar = findViewById(R.id.progressBar)
         layoutView  = findViewById(R.id.layoutView)
         layoutEdit  = findViewById(R.id.layoutEdit)
@@ -98,6 +103,18 @@ class ProfileActivity : AppCompatActivity() {
         btnSave.setOnClickListener {
             saveProfile()
         }
+
+        btnVetProfessionalProfile.setOnClickListener {
+            startActivity(
+                Intent(
+                    this,
+                    com.example.authapp.ui.Vets.VetProfileSetupActivity::class.java
+                )
+            )
+        }
+
+        btnVetProfessionalProfile =
+            findViewById(R.id.btnVetProfessionalProfile)
 
         ivProfileImage.setOnClickListener {
 
@@ -138,6 +155,13 @@ class ProfileActivity : AppCompatActivity() {
                 // Pre-fill edit fields
                 etName.setText(user.displayName)
                 etPhone.setText(user.phoneNumber)
+
+                btnVetProfessionalProfile.visibility =
+                    if (user.role == "veterinarian") {
+                        View.VISIBLE
+                    } else {
+                        View.GONE
+                    }
             }
         }
     }

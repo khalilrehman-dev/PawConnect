@@ -30,9 +30,13 @@ import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
 
+import coil.load
+import com.example.authapp.domain.repository.VetRepository
+
 @AndroidEntryPoint
 class VetProfileSetupActivity : AppCompatActivity() {
-
+    @Inject
+    lateinit var vetRepository: VetRepository
     private val viewModel: VetProfileSetupViewModel by viewModels()
 
     @Inject
@@ -52,6 +56,9 @@ class VetProfileSetupActivity : AppCompatActivity() {
     private lateinit var progressBar: ProgressBar
 
     private var selectedImageBytes: ByteArray? = null
+
+    private var currentImageUrl = ""
+    private var currentCreatedAt = 0L
 
     private val pickImage =
         registerForActivityResult(ActivityResultContracts.GetContent()) { uri: Uri? ->
@@ -89,6 +96,9 @@ class VetProfileSetupActivity : AppCompatActivity() {
         actvSpecialization = findViewById(R.id.actvSpecialization)
         btnSaveProfile = findViewById(R.id.btnSaveProfile)
         progressBar = findViewById(R.id.progressBar)
+        setupSpecializationDropdown()
+        loadExistingVetProfile()
+
 
         supportActionBar?.apply {
             title = "Setup Vet Profile"
@@ -110,8 +120,58 @@ class VetProfileSetupActivity : AppCompatActivity() {
         btnSaveProfile.setOnClickListener {
             submitForm()
         }
-    }
 
+    }
+    private fun loadExistingVetProfile() {
+
+        val uid = auth.currentUser?.uid ?: return
+
+        lifecycleScope.launch {
+
+            val result =
+                vetRepository.getVetById(uid)
+
+            if (result.isSuccess) {
+
+                val vet = result.getOrThrow()
+
+                etFullName.setText(vet.displayName)
+                etClinicName.setText(vet.clinicName)
+                etCity.setText(vet.city)
+                etAddress.setText(vet.address)
+                etPhone.setText(vet.phoneNumber)
+
+                etExperience.setText(
+                    vet.yearsOfExperience.toString()
+                )
+
+                actvSpecialization.setText(
+                    vet.specialization,
+                    false
+                )
+
+                currentImageUrl =
+                    vet.profileImageUrl
+
+                currentCreatedAt =
+                    vet.createdAt
+
+                if (currentImageUrl.isNotBlank()) {
+
+                    findViewById<ImageView>(
+                        R.id.ivVetPhoto
+                    ).load(currentImageUrl)
+
+                    findViewById<TextView>(
+                        R.id.tvAddPhoto
+                    ).text = "Change Photo"
+                }
+
+                btnSaveProfile.text =
+                    "Save Changes"
+            }
+        }
+    }
     private fun setupSpecializationDropdown() {
         val adapter = ArrayAdapter(
             this,
@@ -120,6 +180,8 @@ class VetProfileSetupActivity : AppCompatActivity() {
         )
         actvSpecialization.setAdapter(adapter)
     }
+
+
 
     private fun submitForm() {
 
@@ -144,35 +206,38 @@ class VetProfileSetupActivity : AppCompatActivity() {
 
         val uid = auth.currentUser?.uid ?: return
 
-        if (selectedImageBytes != null) {
+        lifecycleScope.launch {
 
             progressBar.visibility = View.VISIBLE
             btnSaveProfile.isEnabled = false
 
-            lifecycleScope.launch {
+            var imageUrl = currentImageUrl
 
-                val imageResult = cloudinaryUploader.uploadImage(
-                    imageBytes = selectedImageBytes!!,
-                    folder = "pawconnect/vets/$uid"
-                )
+            if (selectedImageBytes != null) {
 
-                val imageUrl =
-                    if (imageResult.isSuccess) imageResult.getOrThrow() else ""
+                val imageResult =
+                    cloudinaryUploader.uploadImage(
+                        imageBytes = selectedImageBytes!!,
+                        folder = "pawconnect/vets/$uid"
+                    )
 
-                viewModel.saveVetProfile(
-                    uid = uid,
-                    displayName = displayName,
-                    clinicName = clinicName,
-                    city = city,
-                    address = address,
-                    phoneNumber = phone,
-                    specialization = specialization,
-                    yearsOfExperience = experience,
-                    profileImageUrl = imageUrl
-                )
+                if (imageResult.isFailure) {
+
+                    progressBar.visibility = View.GONE
+                    btnSaveProfile.isEnabled = true
+
+                    Toast.makeText(
+                        this@VetProfileSetupActivity,
+                        "Profile image upload failed",
+                        Toast.LENGTH_LONG
+                    ).show()
+
+                    return@launch
+                }
+
+                imageUrl =
+                    imageResult.getOrThrow()
             }
-
-        } else {
 
             viewModel.saveVetProfile(
                 uid = uid,
@@ -183,7 +248,8 @@ class VetProfileSetupActivity : AppCompatActivity() {
                 phoneNumber = phone,
                 specialization = specialization,
                 yearsOfExperience = experience,
-                profileImageUrl = ""
+                profileImageUrl = imageUrl,
+                createdAt = currentCreatedAt
             )
         }
     }

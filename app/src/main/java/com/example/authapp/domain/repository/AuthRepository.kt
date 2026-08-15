@@ -21,7 +21,12 @@ interface AuthRepository {
         displayName: String,
         phone: String,
         profileImageUrl: String
-    ): Result<Unit>    fun isLoggedIn(): Boolean
+    ): Result<Unit>
+    fun isLoggedIn(): Boolean
     fun getCurrentUid(): String?
+
+    fun isCurrentUserEmailAuth(): Boolean
+    fun isCurrentUserEmailVerified(): Boolean
+    fun getCurrentUserEmail(): String?
     suspend fun logout(): Result<Unit>
 }

@@ -79,11 +79,9 @@ class OtpActivity : AppCompatActivity() {
             "email" -> {
                 tvOtpSentTo.text =
                     "A verification link was sent to:\n$userEmail\n\n" +
-                            "Steps:\n" +
-                            "1. Open your Gmail app\n" +
-                            "2. Check Spam / Promotions folder\n" +
-                            "3. Click the verification link\n" +
-                            "4. Come back and press Continue"
+                            "Open your email inbox and tap the verification link. " +
+                            "If you don't see it, check your Spam or Junk folder. " +
+                            "Then return to PawConnect and press Continue."
 
                 tilOtp.visibility      = View.GONE
                 tvOtpLabel.visibility  = View.GONE
@@ -231,26 +229,13 @@ class OtpActivity : AppCompatActivity() {
     // ── Navigation after verification ─────────────────────────────────────────
 
     private fun proceedAfterVerification() {
-        CoroutineScope(Dispatchers.Main).launch {
-            val uid = authRepository.getCurrentUid()
-            if (uid != null) {
-                val result = authRepository.getUserFromFirestore(uid)
-                if (result.isSuccess) {
-                    val user = result.getOrThrow()
-                    if (user.role == "veterinarian") {
-                        startActivity(
-                            Intent(this@OtpActivity, VetProfileSetupActivity::class.java).apply {
-                                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                            }
-                        )
-                        return@launch
-                    }
-                }
+        startActivity(
+            Intent(this, DashboardActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
+                        Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
-            startActivity(Intent(this@OtpActivity, DashboardActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-            })
-        }
+        )
+        finish()
     }
 
     // ── Helpers ───────────────────────────────────────────────────────────────

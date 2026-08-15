@@ -68,14 +68,20 @@ class PetDetailActivity : AppCompatActivity() {
         findViewById<TextView>(R.id.tvAgeGender).text   = "${pet.age} year${if (pet.age != 1) "s" else ""} • ${pet.gender}"
         findViewById<TextView>(R.id.tvDescription).text = pet.description.ifEmpty { "No description added" }
 
-//        // Only show delete button if this is the owner's pet
-//        val isOwner = pet.ownerId == authRepository.getCurrentUid()
-//        findViewById<Button>(R.id.btnDelete).visibility = if (isOwner) View.VISIBLE else View.GONE
+        val isOwner =
+            pet.ownerId == authRepository.getCurrentUid()
 
+        val btnDelete =
+            findViewById<Button>(R.id.btnDelete)
+
+        btnDelete.visibility =
+            if (isOwner) View.VISIBLE else View.GONE
         val btnMessageOwner = findViewById<Button>(R.id.btnMessageOwner)
-        // Hide if viewing your own pet
-        val isOwner = pet.ownerId == authRepository.getCurrentUid()
-        btnMessageOwner.visibility = if (isOwner) View.GONE else View.VISIBLE
+
+
+        btnMessageOwner.visibility =
+            if (isOwner) View.GONE else View.VISIBLE
+
         btnMessageOwner.setOnClickListener {
             startActivity(Intent(this, ChatActivity::class.java).apply {
                 putExtra("otherUserId", pet.ownerId)
@@ -84,7 +90,10 @@ class PetDetailActivity : AppCompatActivity() {
         }
 
         val btnEdit = findViewById<Button>(R.id.btnEdit)
-        btnEdit.visibility = if (isOwner) View.VISIBLE else View.GONE
+
+        btnEdit.visibility =
+            if (isOwner) View.VISIBLE else View.GONE
+
         btnEdit.setOnClickListener {
             startActivity(Intent(this, EditPetActivity::class.java).apply {
                 putExtra("petId",      pet.id)
@@ -105,7 +114,9 @@ class PetDetailActivity : AppCompatActivity() {
             AlertDialog.Builder(this)
                 .setTitle("Delete ${pet.name}?")
                 .setMessage("This will permanently delete this pet and cannot be undone.")
-                .setPositiveButton("Delete") { _, _ -> viewModel.deletePet(pet) }
+                .setPositiveButton("Delete") { _, _ ->
+                    viewModel.deletePet(pet.id)
+                }
                 .setNegativeButton("Cancel", null)
                 .show()
         }
