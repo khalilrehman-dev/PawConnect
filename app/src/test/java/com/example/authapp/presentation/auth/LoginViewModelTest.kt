@@ -15,14 +15,7 @@ import org.junit.Test
 //import kotlin.test.assertTrue
 import org.junit.Assert.assertTrue
 
-/**
- * Unit tests for LoginViewModel.
- *
- * We test the ViewModel in isolation — meaning we never touch
- * real Firebase. Instead we create a "fake" AuthRepository using MockK
- * and tell it exactly what to return, so we can test our ViewModel's
- * LOGIC, not Firebase's behavior.
- */
+
 class LoginViewModelTest {
 
     // The fake repository — we control what it returns

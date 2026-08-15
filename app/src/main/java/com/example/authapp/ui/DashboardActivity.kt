@@ -11,6 +11,7 @@ import androidx.cardview.widget.CardView
 import androidx.lifecycle.lifecycleScope
 import com.example.authapp.R
 import com.example.authapp.domain.repository.AuthRepository
+import com.example.authapp.domain.repository.VetRepository
 import com.example.authapp.presentation.chat.ChatViewModel
 import com.example.authapp.ui.Appointments.VetAppointmentsActivity
 import com.example.authapp.ui.Appointments.MyAppointmentsActivity
@@ -27,6 +28,7 @@ import javax.inject.Inject
 class DashboardActivity : AppCompatActivity() {
 
     @Inject lateinit var authRepository: AuthRepository
+    @Inject lateinit var vetRepository: VetRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -53,6 +55,24 @@ class DashboardActivity : AppCompatActivity() {
                 findViewById<TextView>(R.id.tvWelcome).text = "Welcome, $displayName 👋"
                 findViewById<TextView>(R.id.tvRole).text    = roleLabel
 
+                // Show correct dashboard based on role
+                if (user.role == "veterinarian") {
+                    // Enforce vet profile completion before letting them into the dashboard
+                    val vetResult = vetRepository.getVetById(uid)
+                    if (vetResult.isFailure) {
+                        startActivity(
+                            Intent(this@DashboardActivity, com.example.authapp.ui.Vets.VetProfileSetupActivity::class.java).apply {
+                                flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            }
+                        )
+                        finish()
+                        return@launch
+                    }
+                    setupVetDashboard()
+                } else {
+                    setupOwnerDashboard()
+                }
+
                 // Show unread badge on owner + vet message cards
                 val chatViewModel: ChatViewModel by viewModels()
                 chatViewModel.loadUnreadCount()
@@ -72,12 +92,6 @@ class DashboardActivity : AppCompatActivity() {
                             text = count.toString()
                         }
                     }
-                }
-                // Show correct dashboard based on role
-                if (user.role == "veterinarian") {
-                    setupVetDashboard()
-                } else {
-                    setupOwnerDashboard()
                 }
             }
         }

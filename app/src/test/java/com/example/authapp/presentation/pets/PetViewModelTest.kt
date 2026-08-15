@@ -13,10 +13,7 @@ import org.junit.Before
 import org.junit.Test
 import org.junit.Assert.assertTrue
 
-/**
- * Unit tests for PetViewModel — specifically the validation logic
- * in addPet(), since that's where most of our business rules live.
- */
+
 class PetViewModelTest {
 
     private lateinit var petRepository: PetRepository

@@ -200,7 +200,7 @@
             android:layout_height="52dp"
             android:text="Create Account"
             android:textSize="16sp"
-            android:backgroundTint="#1A1A1A"
+            android:backgroundTint="#A4A4A4"
             android:textColor="#FFFFFF"
             android:layout_marginBottom="8dp" />
 
