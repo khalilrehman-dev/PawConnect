@@ -230,7 +230,11 @@ class OtpActivity : AppCompatActivity() {
 
     private fun proceedAfterVerification() {
         startActivity(
-            Intent(this, DashboardActivity::class.java).apply {
+            Intent(
+                this,
+                com.example.authapp.ui.main.MainActivity::class.java
+            ).apply
+            {
                 flags = Intent.FLAG_ACTIVITY_NEW_TASK or
                         Intent.FLAG_ACTIVITY_CLEAR_TASK
             }

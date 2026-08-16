@@ -1,6 +1,5 @@
 package com.example.authapp.ui.Vets
 
-import android.content.Intent
 import android.graphics.Bitmap
 import android.net.Uri
 import android.os.Bundle
@@ -19,19 +18,17 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
+import coil.load
 import com.example.authapp.R
 import com.example.authapp.data.remote.CloudinaryUploader
+import com.example.authapp.domain.repository.VetRepository
 import com.example.authapp.presentation.vets.VetProfileSetupViewModel
-import com.example.authapp.ui.DashboardActivity
 import com.google.android.material.textfield.TextInputEditText
 import com.google.firebase.auth.FirebaseAuth
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
 import java.io.ByteArrayOutputStream
 import javax.inject.Inject
-
-import coil.load
-import com.example.authapp.domain.repository.VetRepository
 
 @AndroidEntryPoint
 class VetProfileSetupActivity : AppCompatActivity() {
@@ -277,15 +274,7 @@ class VetProfileSetupActivity : AppCompatActivity() {
                                 Toast.LENGTH_SHORT
                             ).show()
 
-                            startActivity(
-                                Intent(
-                                    this@VetProfileSetupActivity,
-                                    DashboardActivity::class.java
-                                ).apply {
-                                    flags =
-                                        Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                                }
-                            )
+                            finish()
                         }
 
                         is VetProfileSetupViewModel.UiState.Error -> {

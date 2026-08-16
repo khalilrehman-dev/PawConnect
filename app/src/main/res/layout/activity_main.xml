@@ -1,19 +1,110 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".MainActivity">
+    android:background="@color/paw_background">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
+
+    <!-- ===================================================== -->
+    <!-- Navigation Host                                       -->
+    <!-- ===================================================== -->
+
+    <androidx.fragment.app.FragmentContainerView
+        android:id="@+id/navHostFragment"
+        android:name="androidx.navigation.fragment.NavHostFragment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:visibility="gone"
+        app:defaultNavHost="true"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@id/bottomNavigation"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+    <!-- ===================================================== -->
+    <!-- Role-aware Bottom Navigation                          -->
+    <!-- ===================================================== -->
+
+    <com.google.android.material.bottomnavigation.BottomNavigationView
+        android:id="@+id/bottomNavigation"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:minHeight="80dp"
+        android:background="@color/paw_surface"
+        android:elevation="8dp"
+        android:visibility="gone"
+        app:itemHorizontalTranslationEnabled="false"
+        app:itemIconTint="@color/paw_bottom_nav_tint"
+        app:itemRippleColor="@color/paw_primary_container"
+        app:itemTextColor="@color/paw_bottom_nav_tint"
+        app:labelVisibilityMode="labeled"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+    <!-- ===================================================== -->
+    <!-- Loading                                               -->
+    <!-- ===================================================== -->
+
+    <com.google.android.material.progressindicator.CircularProgressIndicator
+        android:id="@+id/progressMain"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:indeterminate="true"
+        app:indicatorColor="@color/paw_primary"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+    <!-- ===================================================== -->
+    <!-- Error State                                           -->
+    <!-- ===================================================== -->
+
+    <LinearLayout
+        android:id="@+id/layoutMainError"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="@dimen/paw_space_xl"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Unable to open PawConnect"
+            android:textAlignment="center"
+            android:textAppearance="@style/Paw.Text.TitleLarge" />
+
+        <TextView
+            android:id="@+id/tvMainError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/paw_space_xs"
+            android:gravity="center"
+            android:text="Check your connection and try again."
+            android:textAlignment="center"
+            android:textAppearance="@style/Paw.Text.BodySecondary" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnMainRetry"
+            style="@style/Paw.Button.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/paw_space_lg"
+            android:text="Try Again" />
+
+    </LinearLayout>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

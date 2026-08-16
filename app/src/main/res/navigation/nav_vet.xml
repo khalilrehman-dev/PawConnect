@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_vet"
+    app:startDestination="@id/vetHomeFragment">
+
+
+    <!-- New MainActivity destination -->
+
+    <fragment
+        android:id="@+id/vetHomeFragment"
+        android:name="com.example.authapp.ui.main.VetHomeFragment"
+        android:label="Home" />
+
+
+    <!-- Temporary migration destinations -->
+
+    <activity
+        android:id="@+id/vetAppointmentsDestination"
+        android:name="com.example.authapp.ui.Appointments.VetAppointmentsActivity"
+        android:label="Appointments" />
+
+
+    <activity
+        android:id="@+id/vetPatientsDestination"
+        android:name="com.example.authapp.ui.Vets.MyPatientsActivity"
+        android:label="Patients" />
+
+
+    <activity
+        android:id="@+id/vetMessagesDestination"
+        android:name="com.example.authapp.ui.Chat.InboxActivity"
+        android:label="Messages" />
+
+
+    <activity
+        android:id="@+id/vetProfileDestination"
+        android:name="com.example.authapp.ui.ProfileActivity"
+        android:label="Profile" />
+
+
+</navigation>

@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
     <!-- Internet permission for Firebase -->
-    <uses-permission android:name="android.permission.INTERNET" /> <!-- Phone number reading (optional, for auto OTP detection) -->
-    <uses-permission android:name="android.permission.RECEIVE_SMS" /> <!-- Required tag for SMS permission -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <uses-feature
         android:name="android.hardware.telephony"
         android:required="false" />
@@ -18,9 +18,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.AuthApp">
+
         <activity
-            android:name=".firebase.rules"
+            android:name=".ui.main.MainActivity"
             android:exported="false" />
+
         <activity
             android:name=".ui.pets.EditPetActivity"
             android:exported="false" />

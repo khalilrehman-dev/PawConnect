@@ -121,10 +121,22 @@ class LoginActivity : AppCompatActivity() {
                     viewModel.events.collect { event ->
                         when (event) {
                             is LoginEvent.NavigateTo -> {
-                                val dest = DashboardActivity::class.java
-                                startActivity(Intent(this@LoginActivity, dest).apply {
-                                    flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-                                })
+
+                                val dest =
+                                    com.example.authapp.ui.main.MainActivity::class.java
+
+                                startActivity(
+                                    Intent(
+                                        this@LoginActivity,
+                                        dest
+                                    ).apply {
+
+                                        flags =
+                                            Intent.FLAG_ACTIVITY_NEW_TASK or
+                                                    Intent.FLAG_ACTIVITY_CLEAR_TASK
+                                    }
+                                )
+
                                 finish()
                             }
                         }

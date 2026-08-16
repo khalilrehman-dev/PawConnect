@@ -51,7 +51,12 @@ class VetProfileSetupViewModel @Inject constructor(
                 yearsOfExperience = yearsOfExperience,
                 profileImageUrl   = profileImageUrl,
                 isAvailable       = true,
-                createdAt         = System.currentTimeMillis()
+                createdAt =
+                    if (createdAt > 0L) {
+                        createdAt
+                    } else {
+                        System.currentTimeMillis()
+                    }
             )
             vetRepository.saveVetProfile(vet)
                 .onSuccess { _uiState.value = UiState.Success }

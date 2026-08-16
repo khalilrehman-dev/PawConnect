@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <!-- ===================================================== -->
+    <!-- Spacing                                               -->
+    <!-- ===================================================== -->
+
+    <dimen name="paw_space_xxs">4dp</dimen>
+    <dimen name="paw_space_xs">8dp</dimen>
+    <dimen name="paw_space_sm">12dp</dimen>
+    <dimen name="paw_space_md">16dp</dimen>
+    <dimen name="paw_space_lg">20dp</dimen>
+    <dimen name="paw_space_xl">24dp</dimen>
+    <dimen name="paw_space_2xl">32dp</dimen>
+    <dimen name="paw_space_3xl">40dp</dimen>
+
+
+    <!-- ===================================================== -->
+    <!-- Screen                                                -->
+    <!-- ===================================================== -->
+
+    <dimen name="paw_screen_horizontal">
+        20dp
+    </dimen>
+
+    <dimen name="paw_screen_vertical">
+        20dp
+    </dimen>
+
+
+    <!-- ===================================================== -->
+    <!-- Shape                                                 -->
+    <!-- ===================================================== -->
+
+    <dimen name="paw_radius_small">
+        12dp
+    </dimen>
+
+    <dimen name="paw_radius_medium">
+        18dp
+    </dimen>
+
+    <dimen name="paw_radius_large">
+        24dp
+    </dimen>
+
+    <dimen name="paw_radius_extra_large">
+        30dp
+    </dimen>
+
+
+    <!-- ===================================================== -->
+    <!-- Controls                                              -->
+    <!-- ===================================================== -->
+
+    <dimen name="paw_button_height">
+        54dp
+    </dimen>
+
+    <dimen name="paw_input_min_height">
+        56dp
+    </dimen>
+
+    <dimen name="paw_toolbar_height">
+        64dp
+    </dimen>
+
+    <dimen name="paw_bottom_navigation_height">
+        72dp
+    </dimen>
+
+
+    <!-- ===================================================== -->
+    <!-- Images                                                -->
+    <!-- ===================================================== -->
+
+    <dimen name="paw_avatar_small">
+        36dp
+    </dimen>
+
+    <dimen name="paw_avatar_medium">
+        48dp
+    </dimen>
+
+    <dimen name="paw_avatar_large">
+        72dp
+    </dimen>
+
+    <dimen name="paw_avatar_profile">
+        112dp
+    </dimen>
+
+
+    <!-- ===================================================== -->
+    <!-- Elevation                                             -->
+    <!-- ===================================================== -->
+
+    <dimen name="paw_elevation_small">
+        1dp
+    </dimen>
+
+    <dimen name="paw_elevation_medium">
+        3dp
+    </dimen>
+
+</resources>

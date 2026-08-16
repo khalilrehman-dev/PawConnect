@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<navigation
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/nav_owner"
+    app:startDestination="@id/ownerHomeFragment">
+
+
+    <!-- New MainActivity destination -->
+
+    <fragment
+        android:id="@+id/ownerHomeFragment"
+        android:name="com.example.authapp.ui.main.OwnerHomeFragment"
+        android:label="Home" />
+
+
+    <!-- Temporary migration destinations.
+         These existing Activities remain functional
+         until each one is converted to a proper Fragment. -->
+
+    <activity
+        android:id="@+id/ownerPetsDestination"
+        android:name="com.example.authapp.ui.pets.MyPetsActivity"
+        android:label="My Pets" />
+
+
+    <activity
+        android:id="@+id/ownerDiscoverDestination"
+        android:name="com.example.authapp.ui.discover.DiscoverActivity"
+        android:label="Discover" />
+
+
+    <activity
+        android:id="@+id/ownerAppointmentsDestination"
+        android:name="com.example.authapp.ui.Appointments.MyAppointmentsActivity"
+        android:label="Appointments" />
+
+
+    <activity
+        android:id="@+id/ownerMessagesDestination"
+        android:name="com.example.authapp.ui.Chat.InboxActivity"
+        android:label="Messages" />
+
+
+</navigation>

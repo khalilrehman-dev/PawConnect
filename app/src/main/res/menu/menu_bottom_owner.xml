@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/ownerHomeFragment"
+        android:icon="@drawable/ic_nav_home"
+        android:title="Home" />
+
+    <item
+        android:id="@+id/ownerPetsDestination"
+        android:icon="@drawable/ic_nav_pets"
+        android:title="My Pets" />
+
+    <item
+        android:id="@+id/ownerDiscoverDestination"
+        android:icon="@drawable/ic_nav_discover"
+        android:title="Discover" />
+
+    <item
+        android:id="@+id/ownerAppointmentsDestination"
+        android:icon="@drawable/ic_nav_calendar"
+        android:title="Appointments" />
+
+    <item
+        android:id="@+id/ownerMessagesDestination"
+        android:icon="@drawable/ic_nav_messages"
+        android:title="Messages" />
+
+</menu>

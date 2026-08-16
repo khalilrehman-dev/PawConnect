@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/vetHomeFragment"
+        android:icon="@drawable/ic_nav_home"
+        android:title="Home" />
+
+    <item
+        android:id="@+id/vetAppointmentsDestination"
+        android:icon="@drawable/ic_nav_calendar"
+        android:title="Appointments" />
+
+    <item
+        android:id="@+id/vetPatientsDestination"
+        android:icon="@drawable/ic_nav_patients"
+        android:title="Patients" />
+
+    <item
+        android:id="@+id/vetMessagesDestination"
+        android:icon="@drawable/ic_nav_messages"
+        android:title="Messages" />
+
+    <item
+        android:id="@+id/vetProfileDestination"
+        android:icon="@drawable/ic_nav_profile"
+        android:title="Profile" />
+
+</menu>

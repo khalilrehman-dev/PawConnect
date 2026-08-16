@@ -2,94 +2,159 @@ package com.example.authapp.ui
 
 import android.content.Intent
 import android.os.Bundle
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 import androidx.appcompat.app.AppCompatActivity
+import androidx.lifecycle.lifecycleScope
 import com.example.authapp.R
 import com.example.authapp.domain.repository.AuthRepository
-import com.google.firebase.auth.FirebaseAuth
+import com.example.authapp.ui.main.MainActivity
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import javax.inject.Inject
+
 
 @AndroidEntryPoint
 class SplashActivity : AppCompatActivity() {
 
-    @Inject lateinit var authRepository: AuthRepository
+    @Inject
+    lateinit var authRepository: AuthRepository
 
-    override fun onCreate(savedInstanceState: Bundle?) {
+
+    override fun onCreate(
+        savedInstanceState: Bundle?
+    ) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_splash)
+
+        setContentView(
+            R.layout.activity_splash
+        )
 
         lifecycleScope.launch {
+
             delay(1500)
+
             routeUser()
         }
-
-
     }
+
+
     private suspend fun routeUser() {
 
+        // User is not signed in
         if (!authRepository.isLoggedIn()) {
+
             openWelcome()
             return
         }
 
-        // Phone-only user
+
+        /*
+         * Phone-only authentication does not
+         * require email verification.
+         */
         if (!authRepository.isCurrentUserEmailAuth()) {
-            openDashboard()
+
+            openMain()
             return
         }
 
-        // Email/password user
-        val refreshedUser = authRepository.reloadAndGetUser()
+
+        /*
+         * Email/password account.
+         * Refresh Firebase user before trusting
+         * email-verification state.
+         */
+        val refreshedUser =
+            authRepository.reloadAndGetUser()
+
 
         val verified =
             if (refreshedUser.isSuccess) {
-                refreshedUser.getOrThrow().isEmailVerified
+
+                refreshedUser
+                    .getOrThrow()
+                    .isEmailVerified
+
             } else {
-                authRepository.isCurrentUserEmailVerified()
+
+                authRepository
+                    .isCurrentUserEmailVerified()
             }
 
+
         if (verified) {
-            openDashboard()
+
+            openMain()
+
         } else {
+
             openEmailVerification()
         }
     }
+
+
     private fun openWelcome() {
+
         startActivity(
-            Intent(this, WelcomeActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+            Intent(
+                this,
+                WelcomeActivity::class.java
+            ).apply {
+
+                flags =
+                    Intent.FLAG_ACTIVITY_NEW_TASK or
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
         )
+
         finish()
     }
 
-    private fun openDashboard() {
+
+    private fun openMain() {
+
         startActivity(
-            Intent(this, DashboardActivity::class.java).apply {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+            Intent(
+                this,
+                MainActivity::class.java
+            ).apply {
+
+                flags =
+                    Intent.FLAG_ACTIVITY_NEW_TASK or
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
         )
+
         finish()
     }
+
 
     private fun openEmailVerification() {
+
         startActivity(
-            Intent(this, OtpActivity::class.java).apply {
-                putExtra("type", "email")
+            Intent(
+                this,
+                OtpActivity::class.java
+            ).apply {
+
                 putExtra(
-                    "email",
-                    authRepository.getCurrentUserEmail().orEmpty()
+                    "type",
+                    "email"
                 )
 
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+                putExtra(
+                    "email",
+                    authRepository
+                        .getCurrentUserEmail()
+                        .orEmpty()
+                )
+
+                flags =
+                    Intent.FLAG_ACTIVITY_NEW_TASK or
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
         )
+
         finish()
     }
 }

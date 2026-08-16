@@ -1,13 +1,124 @@
-<resources xmlns:tools="http://schemas.android.com/tools">
-    <!-- Base application theme. -->
-    <style name="Base.Theme.AuthApp" parent="Theme.Material3.DayNight.NoActionBar">
-        <!-- Customize your light theme here. -->
-        <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <style
+        name="Base.Theme.AuthApp"
+        parent="Theme.Material3.DayNight.NoActionBar">
+
+        <!-- Brand -->
+        <item name="colorPrimary">@color/paw_primary</item>
+        <item name="colorOnPrimary">@color/paw_on_primary</item>
+
+        <item name="colorPrimaryContainer">
+            @color/paw_primary_container
+        </item>
+
+        <item name="colorOnPrimaryContainer">
+            @color/paw_on_primary_container
+        </item>
+
+
+        <!-- Secondary -->
+        <item name="colorSecondary">@color/paw_secondary</item>
+        <item name="colorOnSecondary">@color/paw_on_secondary</item>
+
+        <item name="colorSecondaryContainer">
+            @color/paw_secondary_container
+        </item>
+
+        <item name="colorOnSecondaryContainer">
+            @color/paw_on_secondary_container
+        </item>
+
+
+        <!-- Tertiary -->
+        <item name="colorTertiary">@color/paw_tertiary</item>
+        <item name="colorOnTertiary">@color/paw_on_tertiary</item>
+
+        <item name="colorTertiaryContainer">
+            @color/paw_tertiary_container
+        </item>
+
+        <item name="colorOnTertiaryContainer">
+            @color/paw_on_tertiary_container
+        </item>
+
+
+        <!-- Background -->
+        <item name="android:colorBackground">
+            @color/paw_background
+        </item>
+
+        <item name="colorOnBackground">
+            @color/paw_on_background
+        </item>
+
+
+        <!-- Surfaces -->
+        <item name="colorSurface">@color/paw_surface</item>
+        <item name="colorOnSurface">@color/paw_on_surface</item>
+
+        <item name="colorSurfaceVariant">
+            @color/paw_surface_variant
+        </item>
+
+        <item name="colorOnSurfaceVariant">
+            @color/paw_on_surface_variant
+        </item>
+
+        <item name="colorOutline">@color/paw_outline</item>
+
+
+        <!-- Error -->
+        <item name="colorError">@color/paw_error</item>
+        <item name="colorOnError">@color/paw_on_error</item>
+
+        <item name="colorErrorContainer">
+            @color/paw_error_container
+        </item>
+
+        <item name="colorOnErrorContainer">
+            @color/paw_on_error_container
+        </item>
+
+
+        <!-- System Bars -->
+        <item name="android:statusBarColor">
+            @color/paw_background
+        </item>
+
+        <item name="android:navigationBarColor">
+            @color/paw_surface
+        </item>
+
+        <item name="android:windowLightStatusBar">
+            true
+        </item>
+
+        <item name="android:windowLightNavigationBar">
+            true
+        </item>
+
+
+        <!-- General -->
+        <item name="android:fontFamily">
+            sans
+        </item>
+
+        <item name="android:windowActionModeOverlay">
+            true
+        </item>
+
+        <item name="android:windowBackground">
+            @color/paw_background
+        </item>
+
     </style>
 
-<!--    <style name="RoleRadioButton" parent="Widget.MaterialComponents.RadioButton">-->
-<!--        <item name="android:textColor">@drawable/rb_text_color_selector</item>-->
-<!--    </style>-->
 
-    <style name="Theme.AuthApp" parent="Base.Theme.AuthApp" />
+    <style
+        name="Theme.AuthApp"
+        parent="Base.Theme.AuthApp" />
+
 </resources>
