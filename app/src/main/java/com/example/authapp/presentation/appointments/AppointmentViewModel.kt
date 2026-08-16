@@ -14,11 +14,13 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+import com.example.authapp.domain.repository.VetRepository
 
 @HiltViewModel
 class AppointmentViewModel @Inject constructor(
     private val appointmentRepository: AppointmentRepository,
     private val petRepository: PetRepository,
+    private val vetRepository: VetRepository,
     private val authRepository: AuthRepository
 ) : ViewModel() {
 
@@ -52,45 +54,150 @@ class AppointmentViewModel @Inject constructor(
 
     fun bookAppointment(
         vetId: String,
-        vetName: String,
-        clinicName: String,
-        selectedPet: Pet,
+        selectedPetId: String,
         date: String,
         time: String,
+        scheduledAt: Long,
         note: String
     ) {
-        val ownerId = authRepository.getCurrentUid() ?: run {
-            _bookingState.value = BookingState.Error("Session expired")
+
+        val ownerId =
+            authRepository.getCurrentUid() ?: run {
+                _bookingState.value =
+                    BookingState.Error(
+                        "Session expired"
+                    )
+                return
+            }
+
+        if (vetId.isBlank()) {
+            _bookingState.value =
+                BookingState.Error("Vet not found")
             return
         }
 
-        if (date.isBlank()) { _bookingState.value = BookingState.Error("Select a date"); return }
-        if (time.isBlank()) { _bookingState.value = BookingState.Error("Select a time"); return }
+        if (selectedPetId.isBlank()) {
+            _bookingState.value =
+                BookingState.Error("Select a pet")
+            return
+        }
+
+        if (date.isBlank()) {
+            _bookingState.value =
+                BookingState.Error("Select a date")
+            return
+        }
+
+        if (time.isBlank()) {
+            _bookingState.value =
+                BookingState.Error("Select a time")
+            return
+        }
+
+        if (scheduledAt <= System.currentTimeMillis()) {
+            _bookingState.value =
+                BookingState.Error(
+                    "Please select a future time"
+                )
+            return
+        }
 
         viewModelScope.launch {
-            _bookingState.value = BookingState.Loading
 
-            val appointment = Appointment(
-                petOwnerId = ownerId,
-                vetId      = vetId,
-                vetName    = vetName,
-                clinicName = clinicName,
-                petId      = selectedPet.id,
-                petName    = selectedPet.name,
-                date       = date,
-                time       = time,
-                note       = note.trim(),
-                status     = "pending"
-            )
+            _bookingState.value =
+                BookingState.Loading
 
-            val result = appointmentRepository.bookAppointment(appointment)
-            if (result.isSuccess) {
-                _bookingState.value = BookingState.Success
-                _events.send(AppointmentEvent.BookingSuccess)
-            } else {
-                _bookingState.value = BookingState.Error(
-                    result.exceptionOrNull()?.message ?: "Booking failed"
+            // Get actual pet from Firestore.
+            val petResult =
+                petRepository.getPetById(
+                    selectedPetId
                 )
+
+            if (petResult.isFailure) {
+                _bookingState.value =
+                    BookingState.Error(
+                        "Pet not found"
+                    )
+                return@launch
+            }
+
+            val pet =
+                petResult.getOrThrow()
+
+            // Never trust a Pet object passed by UI.
+            if (pet.ownerId != ownerId) {
+                _bookingState.value =
+                    BookingState.Error(
+                        "You can only book for your own pet"
+                    )
+                return@launch
+            }
+
+            // Get actual vet details from Firestore.
+            val vetResult =
+                vetRepository.getVetById(vetId)
+
+            if (vetResult.isFailure) {
+                _bookingState.value =
+                    BookingState.Error(
+                        "Vet profile is unavailable"
+                    )
+                return@launch
+            }
+
+            val vet =
+                vetResult.getOrThrow()
+
+            if (!vet.isAvailable) {
+                _bookingState.value =
+                    BookingState.Error(
+                        "This vet is currently unavailable"
+                    )
+                return@launch
+            }
+
+            val appointment =
+                Appointment(
+                    petOwnerId = ownerId,
+
+                    vetId = vet.uid,
+                    vetName = vet.displayName,
+                    clinicName = vet.clinicName,
+
+                    petId = pet.id,
+                    petName = pet.name,
+
+                    date = date,
+                    time = time,
+                    scheduledAt = scheduledAt,
+
+                    note = note.trim(),
+                    status = "pending"
+                )
+
+            val result =
+                appointmentRepository
+                    .bookAppointment(
+                        appointment
+                    )
+
+            if (result.isSuccess) {
+
+                _bookingState.value =
+                    BookingState.Success
+
+                _events.send(
+                    AppointmentEvent.BookingSuccess
+                )
+
+            } else {
+
+                _bookingState.value =
+                    BookingState.Error(
+                        result.exceptionOrNull()
+                            ?.message
+                            ?: "Booking failed"
+                    )
             }
         }
     }
@@ -135,14 +242,106 @@ class AppointmentViewModel @Inject constructor(
 
     // ── Vet accepts or rejects ────────────────────────────────────────────────
 
-    fun updateStatus(appointmentId: String, status: String) {
-        viewModelScope.launch {
-            val result = appointmentRepository.updateAppointmentStatus(appointmentId, status)
-            if (result.isSuccess) {
-                loadVetAppointments() // refresh list
-            } else {
+    fun updateStatus(
+        appointmentId: String,
+        status: String
+    ) {
+
+        val vetId =
+            authRepository.getCurrentUid() ?: run {
+
+                viewModelScope.launch {
+                    _events.send(
+                        AppointmentEvent.Error(
+                            "Session expired"
+                        )
+                    )
+                }
+
+                return
+            }
+
+        if (
+            status != "accepted" &&
+            status != "rejected"
+        ) {
+
+            viewModelScope.launch {
                 _events.send(
-                    AppointmentEvent.Error(result.exceptionOrNull()?.message ?: "Failed to update")
+                    AppointmentEvent.Error(
+                        "Invalid appointment status"
+                    )
+                )
+            }
+
+            return
+        }
+
+        viewModelScope.launch {
+
+            val result =
+                appointmentRepository
+                    .updateAppointmentStatus(
+                        appointmentId,
+                        vetId,
+                        status
+                    )
+
+            if (result.isSuccess) {
+
+                loadVetAppointments()
+
+            } else {
+
+                _events.send(
+                    AppointmentEvent.Error(
+                        result.exceptionOrNull()
+                            ?.message
+                            ?: "Failed to update appointment"
+                    )
+                )
+            }
+        }
+    }
+    fun cancelAppointment(
+        appointmentId: String
+    ) {
+
+        val ownerId =
+            authRepository.getCurrentUid() ?: run {
+
+                viewModelScope.launch {
+                    _events.send(
+                        AppointmentEvent.Error(
+                            "Session expired"
+                        )
+                    )
+                }
+
+                return
+            }
+
+        viewModelScope.launch {
+
+            val result =
+                appointmentRepository
+                    .cancelAppointment(
+                        appointmentId,
+                        ownerId
+                    )
+
+            if (result.isSuccess) {
+
+                loadOwnerAppointments()
+
+            } else {
+
+                _events.send(
+                    AppointmentEvent.Error(
+                        result.exceptionOrNull()
+                            ?.message
+                            ?: "Unable to cancel appointment"
+                    )
                 )
             }
         }

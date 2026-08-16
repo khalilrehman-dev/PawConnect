@@ -10,7 +10,8 @@ data class Appointment(
     val petName: String = "",
     val date: String = "",
     val time: String = "",
+    val scheduledAt: Long = 0L,
     val note: String = "",
-    val status: String = "pending",   // pending / accepted / rejected
+    val status: String = "pending", // pending / accepted / rejected / cancelled
     val createdAt: Long = 0L
 )

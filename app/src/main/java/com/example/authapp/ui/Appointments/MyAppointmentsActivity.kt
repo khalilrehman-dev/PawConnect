@@ -37,7 +37,29 @@ class MyAppointmentsActivity : AppCompatActivity() {
         progressBar  = findViewById(R.id.progressBar)
         tvEmpty      = findViewById(R.id.tvEmpty)
 
-        adapter = OwnerAppointmentAdapter()
+        adapter = OwnerAppointmentAdapter(
+            onCancel = { appointment ->
+
+                androidx.appcompat.app.AlertDialog.Builder(this)
+                    .setTitle("Cancel appointment?")
+                    .setMessage(
+                        "Are you sure you want to cancel this appointment?"
+                    )
+                    .setNegativeButton(
+                        "Keep Appointment",
+                        null
+                    )
+                    .setPositiveButton(
+                        "Cancel"
+                    ) { _, _ ->
+
+                        viewModel.cancelAppointment(
+                            appointment.id
+                        )
+                    }
+                    .show()
+            }
+        )
         recyclerView.layoutManager = LinearLayoutManager(this)
         recyclerView.adapter = adapter
 
@@ -90,8 +112,9 @@ class MyAppointmentsActivity : AppCompatActivity() {
 
 // ── Adapter ───────────────────────────────────────────────────────────────────
 
-class OwnerAppointmentAdapter : RecyclerView.Adapter<OwnerAppointmentAdapter.ViewHolder>() {
-
+class OwnerAppointmentAdapter(
+    private val onCancel: (Appointment) -> Unit
+) : RecyclerView.Adapter<OwnerAppointmentAdapter.ViewHolder>() {
     private val items = mutableListOf<Appointment>()
 
     fun submitList(list: List<Appointment>) {
@@ -117,6 +140,11 @@ class OwnerAppointmentAdapter : RecyclerView.Adapter<OwnerAppointmentAdapter.Vie
         private val tvNote: TextView     = itemView.findViewById(R.id.tvNote)
         private val tvStatus: TextView   = itemView.findViewById(R.id.tvStatus)
 
+        private val btnCancelAppointment: Button =
+            itemView.findViewById(
+                R.id.btnCancelAppointment
+            )
+
         fun bind(a: Appointment) {
             tvVetName.text = "Dr. ${a.vetName}"
             tvClinic.text  = a.clinicName
@@ -126,11 +154,35 @@ class OwnerAppointmentAdapter : RecyclerView.Adapter<OwnerAppointmentAdapter.Vie
             tvNote.text    = if (a.note.isBlank()) "" else "Note: ${a.note}"
 
             // Status badge
-            val (label, color) = when (a.status) {
-                "accepted" -> "✅ Accepted" to "#2E7D32"
-                "rejected" -> "❌ Rejected" to "#C62828"
-                else       -> "⏳ Pending"  to "#F57F17"
+            val (label, color) =
+                when (a.status) {
+
+                    "accepted" ->
+                        "✅ Accepted" to "#2E7D32"
+
+                    "rejected" ->
+                        "❌ Rejected" to "#C62828"
+
+                    "cancelled" ->
+                        "Cancelled" to "#757575"
+
+                    else ->
+                        "⏳ Pending" to "#F57F17"
+                }
+            btnCancelAppointment.visibility =
+                if (
+                    a.status == "pending" ||
+                    a.status == "accepted"
+                ) {
+                    View.VISIBLE
+                } else {
+                    View.GONE
+                }
+
+            btnCancelAppointment.setOnClickListener {
+                onCancel(a)
             }
+
             tvStatus.text = label
             tvStatus.setTextColor(android.graphics.Color.parseColor(color))
         }
