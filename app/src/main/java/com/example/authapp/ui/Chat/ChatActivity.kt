@@ -40,6 +40,7 @@ class ChatActivity : AppCompatActivity() {
         recyclerView = findViewById(R.id.recyclerView)
         etMessage    = findViewById(R.id.etMessage)
         btnSend      = findViewById(R.id.btnSend)
+        btnSend.isEnabled = false
 
         adapter = MessageAdapter(viewModel.myUid)
         recyclerView.layoutManager = LinearLayoutManager(this).apply {
@@ -52,20 +53,48 @@ class ChatActivity : AppCompatActivity() {
             setDisplayHomeAsUpEnabled(true)
         }
 
-        // If chatId passed directly (from inbox) use it
-        // If otherUserId passed (from profile) create/get chat first
-        if (chatId.isNotEmpty()) {
-            viewModel.initWithChatId(chatId)
-            viewModel.markChatAsRead(chatId)
-        } else if (otherUserId.isNotEmpty()) {
-            viewModel.openChat(otherUserId)
+        if (chatId.isNotBlank()) {
+
+            viewModel.initWithChatId(
+                chatId
+            )
+
+        } else if (otherUserId.isNotBlank()) {
+
+            viewModel.openChat(
+                otherUserId
+            )
+
+        } else {
+
+            Toast.makeText(
+                this,
+                "Unable to open chat",
+                Toast.LENGTH_SHORT
+            ).show()
+
+            finish()
+            return
         }
 
         btnSend.setOnClickListener {
-            val text = etMessage.text.toString().trim()
+
+            val text =
+                etMessage.text
+                    .toString()
+                    .trim()
+
             if (text.isNotEmpty()) {
-                viewModel.sendMessage(text)
-                etMessage.text.clear()
+
+                btnSend.isEnabled =
+                    false
+
+                etMessage.isEnabled =
+                    false
+
+                viewModel.sendMessage(
+                    text
+                )
             }
         }
 
@@ -84,11 +113,49 @@ class ChatActivity : AppCompatActivity() {
                 launch {
                     viewModel.events.collect { event ->
                         when (event) {
+
                             is ChatEvent.ChatReady -> {
-                                viewModel.markChatAsRead(event.chatId)
+
+                                viewModel.markChatAsRead(
+                                    event.chatId
+                                )
+
+                                etMessage.isEnabled =
+                                    true
+
+                                btnSend.isEnabled =
+                                    true
                             }
+
+
+                            ChatEvent.MessageSent -> {
+
+                                etMessage.text.clear()
+
+                                etMessage.isEnabled =
+                                    true
+
+                                btnSend.isEnabled =
+                                    true
+
+                                etMessage.requestFocus()
+                            }
+
+
                             is ChatEvent.Error -> {
-                                Toast.makeText(this@ChatActivity, event.message, Toast.LENGTH_SHORT).show()
+
+                                etMessage.isEnabled =
+                                    true
+
+                                btnSend.isEnabled =
+                                    viewModel.chatId.value
+                                        .isNotBlank()
+
+                                Toast.makeText(
+                                    this@ChatActivity,
+                                    event.message,
+                                    Toast.LENGTH_LONG
+                                ).show()
                             }
                         }
                     }

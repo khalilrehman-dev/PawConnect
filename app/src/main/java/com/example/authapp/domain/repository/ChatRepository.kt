@@ -6,18 +6,32 @@ import kotlinx.coroutines.flow.Flow
 
 interface ChatRepository {
 
-    /** Get or create a chat between two users — returns chatId */
-    suspend fun getOrCreateChat(myUid: String, otherUid: String): Result<String>
+    suspend fun getOrCreateChat(
+        myUid: String,
+        otherUid: String
+    ): Result<String>
 
-    /** Real-time stream of messages in a chat */
-    fun getMessages(chatId: String): Flow<List<Message>>
+    suspend fun canAccessChat(
+        chatId: String,
+        userId: String
+    ): Result<Boolean>
 
-    /** Send a message */
-    suspend fun sendMessage(chatId: String, senderId: String, text: String): Result<Unit>
+    fun getMessages(
+        chatId: String
+    ): Flow<List<Message>>
 
-    /** Get all chats for a user — real-time */
-    fun getInbox(uid: String): Flow<List<Chat>>
+    suspend fun sendMessage(
+        chatId: String,
+        senderId: String,
+        text: String
+    ): Result<Unit>
 
-    suspend fun markChatAsRead(chatId: String, userId: String)
+    fun getInbox(
+        uid: String
+    ): Flow<List<Chat>>
 
+    suspend fun markChatAsRead(
+        chatId: String,
+        userId: String
+    ): Result<Unit>
 }

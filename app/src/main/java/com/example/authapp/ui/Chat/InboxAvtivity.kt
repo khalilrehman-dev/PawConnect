@@ -18,6 +18,7 @@ import com.example.authapp.model.Chat
 import com.example.authapp.presentation.chat.ChatViewModel
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.launch
+import com.example.authapp.presentation.chat.ChatEvent
 
 @AndroidEntryPoint
 class InboxActivity : AppCompatActivity() {
@@ -51,11 +52,60 @@ class InboxActivity : AppCompatActivity() {
         }
 
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
-                viewModel.inbox.collect { chats ->
-                    tvEmpty.visibility      = if (chats.isEmpty()) View.VISIBLE else View.GONE
-                    recyclerView.visibility = if (chats.isEmpty()) View.GONE else View.VISIBLE
-                    adapter.submitList(chats)
+
+            repeatOnLifecycle(
+                Lifecycle.State.STARTED
+            ) {
+
+                launch {
+
+                    viewModel.inbox.collect { chats ->
+
+                        tvEmpty.visibility =
+                            if (chats.isEmpty()) {
+                                View.VISIBLE
+                            } else {
+                                View.GONE
+                            }
+
+                        recyclerView.visibility =
+                            if (chats.isEmpty()) {
+                                View.GONE
+                            } else {
+                                View.VISIBLE
+                            }
+
+                        adapter.submitList(
+                            chats
+                        )
+                    }
+                }
+
+
+                launch {
+
+                    viewModel.events.collect { event ->
+
+                        when (event) {
+
+                            is ChatEvent.Error -> {
+
+                                Toast.makeText(
+                                    this@InboxActivity,
+                                    event.message,
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+
+                            is ChatEvent.ChatReady -> {
+                                Unit
+                            }
+
+                            ChatEvent.MessageSent -> {
+                                Unit
+                            }
+                        }
+                    }
                 }
             }
         }
