@@ -19,6 +19,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.AuthApp">
         <activity
+            android:name=".firebase.rules"
+            android:exported="false" />
+        <activity
             android:name=".ui.pets.EditPetActivity"
             android:exported="false" />
         <activity
