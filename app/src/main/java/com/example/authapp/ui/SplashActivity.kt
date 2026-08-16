@@ -2,7 +2,11 @@ package com.example.authapp.ui
 
 import android.content.Intent
 import android.os.Bundle
+import android.view.View
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.authapp.R
 import com.example.authapp.domain.repository.AuthRepository
@@ -14,62 +18,126 @@ import javax.inject.Inject
 
 
 @AndroidEntryPoint
-class SplashActivity : AppCompatActivity() {
+class SplashActivity :
+    AppCompatActivity() {
 
     @Inject
-    lateinit var authRepository: AuthRepository
+    lateinit var authRepository:
+            AuthRepository
 
 
     override fun onCreate(
         savedInstanceState: Bundle?
     ) {
-        super.onCreate(savedInstanceState)
+        super.onCreate(
+            savedInstanceState
+        )
+
+
+        enableEdgeToEdge()
+
 
         setContentView(
             R.layout.activity_splash
         )
 
+
+        applySystemInsets()
+
+
         lifecycleScope.launch {
 
-            delay(1500)
+            /*
+             * Very small delay prevents a harsh flash
+             * for logged-out users while keeping startup fast.
+             */
+            delay(
+                500
+            )
+
 
             routeUser()
         }
     }
 
 
+    private fun applySystemInsets() {
+
+        val root =
+            findViewById<View>(
+                R.id.rootSplash
+            )
+
+
+        ViewCompat
+            .setOnApplyWindowInsetsListener(
+                root
+            ) { view, insets ->
+
+                val systemBars =
+                    insets.getInsets(
+                        WindowInsetsCompat
+                            .Type
+                            .systemBars()
+                    )
+
+
+                view.setPadding(
+                    systemBars.left,
+                    systemBars.top,
+                    systemBars.right,
+                    systemBars.bottom
+                )
+
+
+                insets
+            }
+    }
+
+
     private suspend fun routeUser() {
 
-        // User is not signed in
-        if (!authRepository.isLoggedIn()) {
+        /*
+         * No Firebase session.
+         */
+        if (
+            !authRepository.isLoggedIn()
+        ) {
 
             openWelcome()
+
             return
         }
 
 
         /*
-         * Phone-only authentication does not
-         * require email verification.
+         * Phone-auth users don't require
+         * Firebase email verification.
          */
-        if (!authRepository.isCurrentUserEmailAuth()) {
+        if (
+            !authRepository
+                .isCurrentUserEmailAuth()
+        ) {
 
             openMain()
+
             return
         }
 
 
         /*
-         * Email/password account.
-         * Refresh Firebase user before trusting
-         * email-verification state.
+         * Email/password users must be checked
+         * against a freshly reloaded Firebase user.
          */
         val refreshedUser =
-            authRepository.reloadAndGetUser()
+            authRepository
+                .reloadAndGetUser()
 
 
         val verified =
-            if (refreshedUser.isSuccess) {
+            if (
+                refreshedUser.isSuccess
+            ) {
 
                 refreshedUser
                     .getOrThrow()
@@ -82,7 +150,9 @@ class SplashActivity : AppCompatActivity() {
             }
 
 
-        if (verified) {
+        if (
+            verified
+        ) {
 
             openMain()
 
@@ -95,37 +165,17 @@ class SplashActivity : AppCompatActivity() {
 
     private fun openWelcome() {
 
-        startActivity(
-            Intent(
-                this,
-                WelcomeActivity::class.java
-            ).apply {
-
-                flags =
-                    Intent.FLAG_ACTIVITY_NEW_TASK or
-                            Intent.FLAG_ACTIVITY_CLEAR_TASK
-            }
+        openCleared(
+            WelcomeActivity::class.java
         )
-
-        finish()
     }
 
 
     private fun openMain() {
 
-        startActivity(
-            Intent(
-                this,
-                MainActivity::class.java
-            ).apply {
-
-                flags =
-                    Intent.FLAG_ACTIVITY_NEW_TASK or
-                            Intent.FLAG_ACTIVITY_CLEAR_TASK
-            }
+        openCleared(
+            MainActivity::class.java
         )
-
-        finish()
     }
 
 
@@ -142,6 +192,7 @@ class SplashActivity : AppCompatActivity() {
                     "email"
                 )
 
+
                 putExtra(
                     "email",
                     authRepository
@@ -149,11 +200,34 @@ class SplashActivity : AppCompatActivity() {
                         .orEmpty()
                 )
 
+
                 flags =
                     Intent.FLAG_ACTIVITY_NEW_TASK or
                             Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
         )
+
+
+        finish()
+    }
+
+
+    private fun openCleared(
+        destination: Class<*>
+    ) {
+
+        startActivity(
+            Intent(
+                this,
+                destination
+            ).apply {
+
+                flags =
+                    Intent.FLAG_ACTIVITY_NEW_TASK or
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK
+            }
+        )
+
 
         finish()
     }

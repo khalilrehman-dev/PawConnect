@@ -1,155 +1,985 @@
-package com.example.authapp.ui.pets
+package com.example.authapp.presentation.pets
 
-import android.content.Intent
-import android.os.Bundle
-import android.view.View
-import android.widget.*
-import androidx.activity.viewModels
-import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatActivity
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.lifecycleScope
-import androidx.lifecycle.repeatOnLifecycle
-import coil.load
-import coil.transform.RoundedCornersTransformation
-import com.example.authapp.R
-import com.example.authapp.model.Pet
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.authapp.domain.repository.AuthRepository
-import com.example.authapp.presentation.pets.PetActionState
-import com.example.authapp.presentation.pets.PetEvent
-import com.example.authapp.presentation.pets.PetViewModel
-import com.example.authapp.ui.Chat.ChatActivity
-import dagger.hilt.android.AndroidEntryPoint
+import com.example.authapp.domain.repository.PetRepository
+import com.example.authapp.model.Pet
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@AndroidEntryPoint
-class PetDetailActivity : AppCompatActivity() {
 
-    private val viewModel: PetViewModel by viewModels()
+@HiltViewModel
+class PetViewModel @Inject constructor(
+    private val petRepository: PetRepository,
+    private val authRepository: AuthRepository
+) : ViewModel() {
 
-    @Inject lateinit var authRepository: AuthRepository
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_pet_detail)
+    // =========================================================
+    // My Pets list
+    // =========================================================
 
-        // Read pet data from intent
-        val pet = Pet(
-            id          = intent.getStringExtra("petId")      ?: "",
-            name        = intent.getStringExtra("petName")    ?: "",
-            species     = intent.getStringExtra("petSpecies") ?: "",
-            breed       = intent.getStringExtra("petBreed")   ?: "",
-            age         = intent.getIntExtra("petAge", 0),
-            gender      = intent.getStringExtra("petGender")  ?: "",
-            description = intent.getStringExtra("petDesc")    ?: "",
-            imageUrl    = intent.getStringExtra("petImage")   ?: "",
-            ownerId     = intent.getStringExtra("ownerId")    ?: ""
+    private val _petsState =
+        MutableStateFlow<PetsUiState>(
+            PetsUiState.Idle
         )
 
-        bindPetData(pet)
-        setupDeleteButton(pet)
-        observeViewModel()
+    val petsState =
+        _petsState.asStateFlow()
 
-        supportActionBar?.apply {
-            title = pet.name
-            setDisplayHomeAsUpEnabled(true)
+
+    // =========================================================
+    // Single pet detail
+    // =========================================================
+
+    private val _detailState =
+        MutableStateFlow<PetDetailUiState>(
+            PetDetailUiState.Idle
+        )
+
+    val detailState =
+        _detailState.asStateFlow()
+
+
+    // =========================================================
+    // Add / Edit / Delete actions
+    // =========================================================
+
+    private val _actionState =
+        MutableStateFlow<PetActionState>(
+            PetActionState.Idle
+        )
+
+    val actionState =
+        _actionState.asStateFlow()
+
+
+    // =========================================================
+    // One-time events
+    // =========================================================
+
+    private val _events =
+        Channel<PetEvent>(
+            Channel.BUFFERED
+        )
+
+    val events =
+        _events.receiveAsFlow()
+
+
+    /*
+     * Selected image is kept temporarily in the ViewModel
+     * until add/edit completes.
+     */
+    private var pendingImageBytes:
+            ByteArray? =
+        null
+
+
+    // =========================================================
+    // My Pets
+    // =========================================================
+
+    fun loadMyPets() {
+
+        val uid =
+            authRepository
+                .getCurrentUid()
+
+
+        if (
+            uid.isNullOrBlank()
+        ) {
+
+            _petsState.value =
+                PetsUiState.Error(
+                    "Your session has expired."
+                )
+
+            return
         }
-    }
-
-    private fun bindPetData(pet: Pet) {
-        findViewById<ImageView>(R.id.ivPetImage).load(pet.imageUrl) {
-            crossfade(true)
-            placeholder(R.drawable.ic_pet_placeholder)
-            transformations(RoundedCornersTransformation(16f))
-        }
-        findViewById<TextView>(R.id.tvName).text        = pet.name
-        findViewById<TextView>(R.id.tvSpeciesBreed).text = "${pet.species} • ${pet.breed}"
-        findViewById<TextView>(R.id.tvAgeGender).text   = "${pet.age} year${if (pet.age != 1) "s" else ""} • ${pet.gender}"
-        findViewById<TextView>(R.id.tvDescription).text = pet.description.ifEmpty { "No description added" }
-
-        val isOwner =
-            pet.ownerId == authRepository.getCurrentUid()
-
-        val btnDelete =
-            findViewById<Button>(R.id.btnDelete)
-
-        btnDelete.visibility =
-            if (isOwner) View.VISIBLE else View.GONE
-        val btnMessageOwner = findViewById<Button>(R.id.btnMessageOwner)
 
 
-        btnMessageOwner.visibility =
-            if (isOwner) View.GONE else View.VISIBLE
+        viewModelScope.launch {
 
-        btnMessageOwner.setOnClickListener {
-            startActivity(Intent(this, ChatActivity::class.java).apply {
-                putExtra("otherUserId", pet.ownerId)
-                putExtra("otherName",   "Pet Owner")
-            })
-        }
+            _petsState.value =
+                PetsUiState.Loading
 
-        val btnEdit = findViewById<Button>(R.id.btnEdit)
 
-        btnEdit.visibility =
-            if (isOwner) View.VISIBLE else View.GONE
+            val result =
+                petRepository
+                    .getPetsByOwner(
+                        uid
+                    )
 
-        btnEdit.setOnClickListener {
-            startActivity(Intent(this, EditPetActivity::class.java).apply {
-                putExtra("petId",      pet.id)
-                putExtra("ownerId",    pet.ownerId)
-                putExtra("petName",    pet.name)
-                putExtra("petSpecies", pet.species)
-                putExtra("petBreed",   pet.breed)
-                putExtra("petAge",     pet.age)
-                putExtra("petGender",  pet.gender)
-                putExtra("petDesc",    pet.description)
-                putExtra("petImage",   pet.imageUrl)
-            })
-        }
-    }
 
-    private fun setupDeleteButton(pet: Pet) {
-        findViewById<Button>(R.id.btnDelete).setOnClickListener {
-            AlertDialog.Builder(this)
-                .setTitle("Delete ${pet.name}?")
-                .setMessage("This will permanently delete this pet and cannot be undone.")
-                .setPositiveButton("Delete") { _, _ ->
-                    viewModel.deletePet(pet.id)
-                }
-                .setNegativeButton("Cancel", null)
-                .show()
-        }
-    }
+            _petsState.value =
+                if (
+                    result.isSuccess
+                ) {
 
-    private fun observeViewModel() {
-        lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                    val pets =
+                        result.getOrThrow()
 
-                launch {
-                    viewModel.actionState.collect { state ->
-                        when (state) {
-                            is PetActionState.Loading -> { }
-                            is PetActionState.Success -> finish()
-                            is PetActionState.Error   -> Toast.makeText(this@PetDetailActivity, state.message, Toast.LENGTH_LONG).show()
-                            else -> { }
-                        }
+
+                    if (
+                        pets.isEmpty()
+                    ) {
+
+                        PetsUiState.Empty
+
+                    } else {
+
+                        PetsUiState.Success(
+                            pets
+                        )
                     }
+
+                } else {
+
+                    PetsUiState.Error(
+                        result
+                            .exceptionOrNull()
+                            ?.message
+                            ?: "Failed to load pets."
+                    )
+                }
+        }
+    }
+
+
+    // =========================================================
+    // Authoritative Pet Detail
+    // =========================================================
+
+    fun loadPet(
+        petId: String
+    ) {
+
+        if (
+            petId.isBlank()
+        ) {
+
+            _detailState.value =
+                PetDetailUiState.Error(
+                    "Pet information is missing."
+                )
+
+            return
+        }
+
+
+        viewModelScope.launch {
+
+            _detailState.value =
+                PetDetailUiState.Loading
+
+
+            val result =
+                petRepository
+                    .getPetById(
+                        petId
+                    )
+
+
+            _detailState.value =
+                if (
+                    result.isSuccess
+                ) {
+
+                    PetDetailUiState.Success(
+                        result.getOrThrow()
+                    )
+
+                } else {
+
+                    PetDetailUiState.Error(
+                        result
+                            .exceptionOrNull()
+                            ?.message
+                            ?: "Unable to load this pet."
+                    )
+                }
+        }
+    }
+
+
+    /*
+     * Edit screen uses a separate authoritative loader.
+     *
+     * This prevents another user's pet from even being
+     * presented as editable if somebody manually launches
+     * EditPetActivity with a foreign pet ID.
+     */
+    fun loadPetForEdit(
+        petId: String
+    ) {
+
+        val uid =
+            authRepository
+                .getCurrentUid()
+
+
+        if (
+            uid.isNullOrBlank()
+        ) {
+
+            _detailState.value =
+                PetDetailUiState.Error(
+                    "Your session has expired."
+                )
+
+            return
+        }
+
+
+        if (
+            petId.isBlank()
+        ) {
+
+            _detailState.value =
+                PetDetailUiState.Error(
+                    "Pet information is missing."
+                )
+
+            return
+        }
+
+
+        viewModelScope.launch {
+
+            _detailState.value =
+                PetDetailUiState.Loading
+
+
+            val result =
+                petRepository
+                    .getPetById(
+                        petId
+                    )
+
+
+            if (
+                result.isFailure
+            ) {
+
+                _detailState.value =
+                    PetDetailUiState.Error(
+                        result
+                            .exceptionOrNull()
+                            ?.message
+                            ?: "Unable to load this pet."
+                    )
+
+                return@launch
+            }
+
+
+            val pet =
+                result.getOrThrow()
+
+
+            if (
+                pet.ownerId != uid
+            ) {
+
+                _detailState.value =
+                    PetDetailUiState.Error(
+                        "You can only edit your own pet."
+                    )
+
+                return@launch
+            }
+
+
+            _detailState.value =
+                PetDetailUiState.Success(
+                    pet
+                )
+        }
+    }
+
+
+    // =========================================================
+    // Image
+    // =========================================================
+
+    fun setImage(
+        bytes: ByteArray
+    ) {
+
+        pendingImageBytes =
+            bytes
+    }
+
+
+    // =========================================================
+    // Add Pet
+    // =========================================================
+
+    fun addPet(
+        name: String,
+        species: String,
+        breed: String,
+        age: String,
+        gender: String,
+        description: String
+    ) {
+
+        val uid =
+            authRepository
+                .getCurrentUid()
+                ?: run {
+
+                    _actionState.value =
+                        PetActionState.Error(
+                            "Session expired"
+                        )
+
+                    return
                 }
 
-                launch {
-                    viewModel.events.collect { event ->
-                        when (event) {
-                            is PetEvent.NavigateBack -> finish()
-                        }
-                    }
+
+        if (
+            name.isBlank()
+        ) {
+
+            _actionState.value =
+                PetActionState.Error(
+                    "Enter pet name"
+                )
+
+            return
+        }
+
+
+        if (
+            species.isBlank() ||
+            species ==
+            "Select Species"
+        ) {
+
+            _actionState.value =
+                PetActionState.Error(
+                    "Select species"
+                )
+
+            return
+        }
+
+
+        if (
+            breed.isBlank()
+        ) {
+
+            _actionState.value =
+                PetActionState.Error(
+                    "Enter breed"
+                )
+
+            return
+        }
+
+
+        if (
+            age.isBlank() ||
+            age.toIntOrNull() == null
+        ) {
+
+            _actionState.value =
+                PetActionState.Error(
+                    "Enter valid age"
+                )
+
+            return
+        }
+
+
+        if (
+            gender.isBlank() ||
+            gender ==
+            "Select Gender"
+        ) {
+
+            _actionState.value =
+                PetActionState.Error(
+                    "Select gender"
+                )
+
+            return
+        }
+
+
+        if (
+            pendingImageBytes == null
+        ) {
+
+            _actionState.value =
+                PetActionState.Error(
+                    "Please upload a photo"
+                )
+
+            return
+        }
+
+
+        viewModelScope.launch {
+
+            _actionState.value =
+                PetActionState.Loading
+
+
+            val newPet =
+                Pet(
+                    ownerId =
+                        uid,
+
+                    name =
+                        name.trim(),
+
+                    species =
+                        species,
+
+                    breed =
+                        breed.trim(),
+
+                    age =
+                        age.toInt(),
+
+                    gender =
+                        gender,
+
+                    description =
+                        description.trim()
+                )
+
+
+            val addResult =
+                petRepository
+                    .addPet(
+                        newPet
+                    )
+
+
+            if (
+                addResult.isFailure
+            ) {
+
+                _actionState.value =
+                    PetActionState.Error(
+                        addResult
+                            .exceptionOrNull()
+                            ?.message
+                            ?: "Failed to add pet"
+                    )
+
+                return@launch
+            }
+
+
+            val savedPet =
+                addResult.getOrThrow()
+
+
+            val imageResult =
+                petRepository
+                    .uploadPetImage(
+                        savedPet.id,
+                        pendingImageBytes!!
+                    )
+
+
+            if (
+                imageResult.isFailure
+            ) {
+
+                _actionState.value =
+                    PetActionState.Error(
+                        "Pet saved but image upload failed"
+                    )
+
+
+                _events.send(
+                    PetEvent.NavigateBack
+                )
+
+
+                return@launch
+            }
+
+
+            val imageUrl =
+                imageResult.getOrThrow()
+
+
+            petRepository
+                .updatePet(
+                    savedPet.copy(
+                        imageUrl =
+                            imageUrl
+                    )
+                )
+
+
+            pendingImageBytes =
+                null
+
+
+            _actionState.value =
+                PetActionState.Success
+
+
+            _events.send(
+                PetEvent.NavigateBack
+            )
+        }
+    }
+
+
+    // =========================================================
+    // Edit Pet
+    // =========================================================
+
+    fun editPet(
+        petId: String,
+        name: String,
+        species: String,
+        breed: String,
+        age: String,
+        gender: String,
+        description: String
+    ) {
+
+        val uid =
+            authRepository
+                .getCurrentUid()
+                ?: run {
+
+                    _actionState.value =
+                        PetActionState.Error(
+                            "Session expired"
+                        )
+
+                    return
                 }
+
+
+        if (
+            name.isBlank()
+        ) {
+
+            _actionState.value =
+                PetActionState.Error(
+                    "Enter pet name"
+                )
+
+            return
+        }
+
+
+        if (
+            species.isBlank() ||
+            species ==
+            "Select Species"
+        ) {
+
+            _actionState.value =
+                PetActionState.Error(
+                    "Select species"
+                )
+
+            return
+        }
+
+
+        if (
+            breed.isBlank()
+        ) {
+
+            _actionState.value =
+                PetActionState.Error(
+                    "Enter breed"
+                )
+
+            return
+        }
+
+
+        if (
+            age.isBlank() ||
+            age.toIntOrNull() == null
+        ) {
+
+            _actionState.value =
+                PetActionState.Error(
+                    "Enter valid age"
+                )
+
+            return
+        }
+
+
+        if (
+            gender.isBlank() ||
+            gender ==
+            "Select Gender"
+        ) {
+
+            _actionState.value =
+                PetActionState.Error(
+                    "Select gender"
+                )
+
+            return
+        }
+
+
+        viewModelScope.launch {
+
+            _actionState.value =
+                PetActionState.Loading
+
+
+            /*
+             * Refetch authoritative Firestore document.
+             */
+            val petResult =
+                petRepository
+                    .getPetById(
+                        petId
+                    )
+
+
+            if (
+                petResult.isFailure
+            ) {
+
+                _actionState.value =
+                    PetActionState.Error(
+                        "Pet not found"
+                    )
+
+                return@launch
+            }
+
+
+            val existingPet =
+                petResult.getOrThrow()
+
+
+            /*
+             * Never trust owner information from Intent/UI.
+             */
+            if (
+                existingPet.ownerId != uid
+            ) {
+
+                _actionState.value =
+                    PetActionState.Error(
+                        "You can only edit your own pet"
+                    )
+
+                return@launch
+            }
+
+
+            val imageUrl =
+                if (
+                    pendingImageBytes != null
+                ) {
+
+                    val imageResult =
+                        petRepository
+                            .uploadPetImage(
+                                petId,
+                                pendingImageBytes!!
+                            )
+
+
+                    if (
+                        imageResult.isFailure
+                    ) {
+
+                        _actionState.value =
+                            PetActionState.Error(
+                                "Image upload failed"
+                            )
+
+                        return@launch
+                    }
+
+
+                    pendingImageBytes =
+                        null
+
+
+                    imageResult.getOrThrow()
+
+                } else {
+
+                    existingPet.imageUrl
+                }
+
+
+            /*
+             * copy() preserves immutable fields such as:
+             * ownerId
+             * id
+             * createdAt
+             */
+            val updatedPet =
+                existingPet.copy(
+                    name =
+                        name.trim(),
+
+                    species =
+                        species,
+
+                    breed =
+                        breed.trim(),
+
+                    age =
+                        age.toInt(),
+
+                    gender =
+                        gender,
+
+                    description =
+                        description.trim(),
+
+                    imageUrl =
+                        imageUrl
+                )
+
+
+            val result =
+                petRepository
+                    .updatePet(
+                        updatedPet
+                    )
+
+
+            if (
+                result.isSuccess
+            ) {
+
+                _actionState.value =
+                    PetActionState.Success
+
+
+                _events.send(
+                    PetEvent.NavigateBack
+                )
+
+            } else {
+
+                _actionState.value =
+                    PetActionState.Error(
+                        result
+                            .exceptionOrNull()
+                            ?.message
+                            ?: "Failed to update pet"
+                    )
             }
         }
     }
 
-    override fun onSupportNavigateUp(): Boolean {
-        onBackPressedDispatcher.onBackPressed()
-        return true
+
+    // =========================================================
+    // Delete Pet
+    // =========================================================
+
+    fun deletePet(
+        petId: String
+    ) {
+
+        val uid =
+            authRepository
+                .getCurrentUid()
+                ?: run {
+
+                    _actionState.value =
+                        PetActionState.Error(
+                            "Session expired"
+                        )
+
+                    return
+                }
+
+
+        viewModelScope.launch {
+
+            _actionState.value =
+                PetActionState.Loading
+
+
+            val petResult =
+                petRepository
+                    .getPetById(
+                        petId
+                    )
+
+
+            if (
+                petResult.isFailure
+            ) {
+
+                _actionState.value =
+                    PetActionState.Error(
+                        "Pet not found"
+                    )
+
+                return@launch
+            }
+
+
+            val storedPet =
+                petResult.getOrThrow()
+
+
+            if (
+                storedPet.ownerId != uid
+            ) {
+
+                _actionState.value =
+                    PetActionState.Error(
+                        "You can only delete your own pet"
+                    )
+
+                return@launch
+            }
+
+
+            val result =
+                petRepository
+                    .deletePet(
+                        storedPet.id,
+                        storedPet.imageUrl
+                    )
+
+
+            if (
+                result.isSuccess
+            ) {
+
+                _actionState.value =
+                    PetActionState.Success
+
+
+                loadMyPets()
+
+            } else {
+
+                _actionState.value =
+                    PetActionState.Error(
+                        result
+                            .exceptionOrNull()
+                            ?.message
+                            ?: "Failed to delete pet"
+                    )
+            }
+        }
     }
+
+
+    fun clearActionState() {
+
+        _actionState.value =
+            PetActionState.Idle
+    }
+}
+
+
+// =============================================================
+// List State
+// =============================================================
+
+sealed class PetsUiState {
+
+    object Idle :
+        PetsUiState()
+
+
+    object Loading :
+        PetsUiState()
+
+
+    object Empty :
+        PetsUiState()
+
+
+    data class Success(
+        val pets: List<Pet>
+    ) : PetsUiState()
+
+
+    data class Error(
+        val message: String
+    ) : PetsUiState()
+}
+
+
+// =============================================================
+// Detail State
+// =============================================================
+
+sealed class PetDetailUiState {
+
+    object Idle :
+        PetDetailUiState()
+
+
+    object Loading :
+        PetDetailUiState()
+
+
+    data class Success(
+        val pet: Pet
+    ) : PetDetailUiState()
+
+
+    data class Error(
+        val message: String
+    ) : PetDetailUiState()
+}
+
+
+// =============================================================
+// Action State
+// =============================================================
+
+sealed class PetActionState {
+
+    object Idle :
+        PetActionState()
+
+
+    object Loading :
+        PetActionState()
+
+
+    object Success :
+        PetActionState()
+
+
+    data class Error(
+        val message: String
+    ) : PetActionState()
+}
+
+
+// =============================================================
+// Events
+// =============================================================
+
+sealed class PetEvent {
+
+    object NavigateBack :
+        PetEvent()
 }

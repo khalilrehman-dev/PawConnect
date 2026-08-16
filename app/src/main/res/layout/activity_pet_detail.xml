@@ -1,117 +1,271 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootPetDetail"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5">
+    android:background="@color/paw_background">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
 
-        <!-- Pet image -->
-        <ImageView
-            android:id="@+id/ivPetImage"
-            android:layout_width="match_parent"
-            android:layout_height="260dp"
-            android:scaleType="centerCrop" />
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbarPetDetail"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/paw_background"
+        app:title="Pet Profile"
+        app:titleTextColor="@color/paw_text_primary"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <!-- Info card -->
+
+    <!-- ===================================================== -->
+    <!-- Loaded Content                                        -->
+    <!-- ===================================================== -->
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/contentPetDetail"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/toolbarPetDetail"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/card_background"
-            android:padding="20dp"
-            android:layout_margin="16dp">
+            android:paddingStart="@dimen/paw_screen_horizontal"
+            android:paddingTop="@dimen/paw_space_lg"
+            android:paddingEnd="@dimen/paw_screen_horizontal"
+            android:paddingBottom="@dimen/paw_space_2xl">
+
+
+            <!-- Pet Photo -->
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Paw.Card"
+                android:layout_width="match_parent"
+                android:layout_height="220dp"
+                app:cardCornerRadius="@dimen/paw_radius_large">
+
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/ivPetImage"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:background="@color/paw_surface_variant"
+                    android:contentDescription="Pet photo"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_pet_placeholder"
+                    app:shapeAppearanceOverlay="@style/PawConnectRoundedLargeShape" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+
+            <!-- Main Details -->
 
             <TextView
                 android:id="@+id/tvName"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_lg"
                 android:text="Pet Name"
-                android:textSize="24sp"
-                android:textStyle="bold"
-                android:textColor="#1A1A1A" />
+                android:textAppearance="@style/Paw.Text.Headline" />
+
 
             <TextView
                 android:id="@+id/tvSpeciesBreed"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Species • Breed"
-                android:textSize="15sp"
-                android:textColor="#666666"
-                android:layout_marginTop="6dp" />
+                android:layout_marginTop="@dimen/paw_space_xxs"
+                android:text="Dog • Labrador"
+                android:textColor="@color/paw_primary"
+                android:textSize="14sp"
+                android:textStyle="bold" />
+
 
             <TextView
                 android:id="@+id/tvAgeGender"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Age • Gender"
-                android:textSize="14sp"
-                android:textColor="#888888"
-                android:layout_marginTop="4dp" />
-
-            <View
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#F0F0F0"
-                android:layout_marginTop="16dp"
-                android:layout_marginBottom="16dp" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_xs"
+                android:text="3 years • Male"
+                android:textAppearance="@style/Paw.Text.BodySecondary" />
+
+
+            <!-- About -->
 
             <TextView
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_xl"
                 android:text="About"
-                android:textSize="14sp"
-                android:textStyle="bold"
-                android:textColor="#1A1A1A"
-                android:layout_marginBottom="8dp" />
+                android:textAppearance="@style/Paw.Text.TitleLarge" />
 
-            <TextView
-                android:id="@+id/tvDescription"
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Paw.Card.Flat"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="No description"
-                android:textSize="14sp"
-                android:textColor="#444444"
-                android:lineSpacingExtra="4dp" />
+                android:layout_marginTop="@dimen/paw_space_sm">
+
+
+                <TextView
+                    android:id="@+id/tvDescription"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:lineSpacingExtra="3dp"
+                    android:padding="@dimen/paw_space_lg"
+                    android:text="No description added."
+                    android:textAppearance="@style/Paw.Text.Body" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+
+            <!-- Actions -->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_xl"
+                android:text="Actions"
+                android:textAppearance="@style/Paw.Text.TitleLarge" />
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnMessageOwner"
+                style="@style/Paw.Button.Primary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_sm"
+                android:text="Message Owner"
+                android:visibility="gone" />
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnEdit"
+                style="@style/Paw.Button.Primary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_sm"
+                android:text="Edit Pet"
+                android:visibility="gone" />
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnDelete"
+                style="@style/Paw.Button.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_sm"
+                android:text="Delete Pet"
+                android:textColor="@color/paw_error"
+                android:visibility="gone"
+                app:strokeColor="@color/paw_error" />
+
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/progressPetAction"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/paw_space_md"
+                android:indeterminate="true"
+                android:visibility="gone"
+                app:indicatorColor="@color/paw_primary" />
 
         </LinearLayout>
 
-        <Button
-            android:id="@+id/btnMessageOwner"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:text="💬  Message Owner"
-            android:backgroundTint="#1A1A1A"
-            android:textColor="#FFFFFF"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="8dp" />
+    </androidx.core.widget.NestedScrollView>
 
-        <Button
-            android:id="@+id/btnEdit"
-            android:layout_width="match_parent"
-            android:layout_height="48dp"
-            android:text="Edit Pet"
-            android:backgroundTint="#1A1A1A"
-            android:textColor="#FFFFFF"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="8dp" />
 
-        <Button
-            android:id="@+id/btnDelete"
-            android:layout_width="match_parent"
+    <!-- ===================================================== -->
+    <!-- Loading                                               -->
+    <!-- ===================================================== -->
+
+    <LinearLayout
+        android:id="@+id/layoutPetLoading"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/toolbarPetDetail"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:layout_width="48dp"
             android:layout_height="48dp"
-            android:text="Delete Pet"
-            android:backgroundTint="#FF3B30"
-            android:textColor="#FFFFFF"
-            android:layout_marginStart="16dp"
-            android:layout_marginEnd="16dp"
-            android:layout_marginBottom="24dp" />
+            android:indeterminate="true"
+            app:indicatorColor="@color/paw_primary" />
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/paw_space_md"
+            android:text="Loading pet profile..."
+            android:textAppearance="@style/Paw.Text.BodySecondary" />
 
     </LinearLayout>
-</ScrollView>
+
+
+    <!-- ===================================================== -->
+    <!-- Error                                                 -->
+    <!-- ===================================================== -->
+
+    <LinearLayout
+        android:id="@+id/layoutPetError"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/paw_space_2xl"
+        android:layout_marginEnd="@dimen/paw_space_2xl"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/toolbarPetDetail"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Unable to load pet"
+            android:textAppearance="@style/Paw.Text.TitleLarge" />
+
+
+        <TextView
+            android:id="@+id/tvPetDetailError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/paw_space_xs"
+            android:gravity="center"
+            android:text="Please try again."
+            android:textAlignment="center"
+            android:textAppearance="@style/Paw.Text.BodySecondary" />
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRetryPetDetail"
+            style="@style/Paw.Button.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/paw_space_lg"
+            android:text="Try Again" />
+
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

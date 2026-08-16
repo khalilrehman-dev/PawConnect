@@ -1,136 +1,173 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView
+
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootOtp"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F7F7F7">
+    android:background="@color/paw_background"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="24dp">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Verification"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:textColor="#1A1A1A"
-            android:layout_marginTop="48dp" />
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbarOtp"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/paw_background"
+        app:navigationIcon="@drawable/ic_arrow_back"
+        app:navigationIconTint="@color/paw_text_primary"
+        app:title=""
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Almost there!"
-            android:textSize="14sp"
-            android:textColor="#666666"
-            android:layout_marginTop="6dp"
-            android:layout_marginBottom="32dp" />
 
-        <!-- Instruction card — shown for both email and phone -->
+    <androidx.core.widget.NestedScrollView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:clipToPadding="false"
+        android:fillViewport="true"
+        app:layout_constraintTop_toBottomOf="@id/toolbarOtp"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
             android:orientation="vertical"
-            android:background="@drawable/card_background"
-            android:padding="20dp"
-            android:layout_marginBottom="24dp">
+            android:paddingStart="@dimen/paw_screen_horizontal"
+            android:paddingTop="@dimen/paw_space_xl"
+            android:paddingEnd="@dimen/paw_screen_horizontal"
+            android:paddingBottom="@dimen/paw_space_2xl">
+
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="88dp"
+                android:layout_height="88dp"
+                app:cardBackgroundColor="@color/paw_primary_container"
+                app:cardCornerRadius="28dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+
+                <ImageView
+                    android:layout_width="46dp"
+                    android:layout_height="46dp"
+                    android:layout_gravity="center"
+                    android:contentDescription="Verification"
+                    android:src="@drawable/ic_paw_auth" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+
+            <TextView
+                android:id="@+id/tvVerificationTitle"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_lg"
+                android:gravity="center"
+                android:text="Verify your account"
+                android:textAlignment="center"
+                android:textAppearance="@style/Paw.Text.Headline" />
+
 
             <TextView
                 android:id="@+id/tvOtpSentTo"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Verification sent"
+                android:layout_marginTop="@dimen/paw_space_sm"
+                android:gravity="center"
+                android:lineSpacingExtra="3dp"
+                android:text="Verification instructions"
+                android:textAlignment="center"
+                android:textAppearance="@style/Paw.Text.BodySecondary" />
+
+
+            <TextView
+                android:id="@+id/tvOtpLabel"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_xl"
+                android:text="Verification code"
+                android:textAppearance="@style/Paw.Text.Label"
+                android:visibility="gone" />
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/tilOtp"
+                style="@style/Paw.TextInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_xs"
+                android:hint="6-digit code"
+                android:visibility="gone">
+
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etOtp"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:digits="0123456789"
+                    android:gravity="center"
+                    android:inputType="number"
+                    android:maxLength="6"
+                    android:maxLines="1"
+                    android:textSize="20sp"
+                    android:letterSpacing="0.18" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnOpenMail"
+                style="@style/Paw.Button.Tonal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_xl"
+                android:text="Open Email App"
+                android:visibility="gone" />
+
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnVerify"
+                style="@style/Paw.Button.Primary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_sm"
+                android:text="Verify" />
+
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/progressBar"
+                android:layout_width="36dp"
+                android:layout_height="36dp"
+                android:layout_marginTop="@dimen/paw_space_md"
+                android:indeterminate="true"
+                android:visibility="gone"
+                app:indicatorColor="@color/paw_primary" />
+
+
+            <TextView
+                android:id="@+id/tvResend"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_xl"
+                android:gravity="center"
+                android:padding="@dimen/paw_space_sm"
+                android:text="Resend"
+                android:textAlignment="center"
+                android:textColor="@color/paw_primary"
                 android:textSize="14sp"
-                android:textColor="#1A1A1A"
-                android:lineSpacingExtra="6dp" />
+                android:textStyle="bold" />
 
         </LinearLayout>
 
-        <!-- Label above OTP input — visible for phone, hidden for email -->
-        <TextView
-            android:id="@+id/tvOtpLabel"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Enter OTP"
-            android:textSize="14sp"
-            android:textStyle="bold"
-            android:textColor="#1A1A1A"
-            android:layout_marginBottom="8dp"
-            android:visibility="gone" />
+    </androidx.core.widget.NestedScrollView>
 
-        <!-- OTP input — visible for phone, hidden for email -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:id="@+id/tilOtp"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="6-digit OTP"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            app:boxStrokeColor="#1A1A1A"
-            app:boxStrokeWidth="1.5dp"
-            app:hintTextColor="#1A1A1A"
-            android:layout_marginBottom="20dp"
-            android:visibility="gone">
 
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etOtp"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:inputType="numberPassword"
-                android:maxLength="6"
-                android:gravity="center"
-                android:textSize="24sp"
-                android:textColor="#1A1A1A"
-                android:letterSpacing="0.5" />
-
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <!-- Open Email App — visible for email only -->
-        <Button
-            android:id="@+id/btnOpenMail"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:text="Open Email App"
-            android:textSize="15sp"
-            android:backgroundTint="#F0F0F0"
-            android:textColor="#1A1A1A"
-            android:layout_marginBottom="12dp"
-            android:visibility="gone" />
-
-        <!-- Primary action button -->
-        <Button
-            android:id="@+id/btnVerify"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:text="Continue"
-            android:textSize="15sp"
-            android:backgroundTint="#1A1A1A"
-            android:textColor="#FFFFFF"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Resend -->
-        <TextView
-            android:id="@+id/tvResend"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Resend in 30s"
-            android:textSize="14sp"
-            android:textColor="#888888"
-            android:layout_gravity="center"
-            android:padding="8dp" />
-
-        <!-- Progress -->
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="8dp"
-            android:visibility="gone"
-            android:indeterminate="true" />
-
-    </LinearLayout>
-</ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

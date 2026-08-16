@@ -1,43 +1,85 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
+
+<androidx.constraintlayout.widget.ConstraintLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootSplash"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:background="#FFFFFF">
+    android:background="@color/paw_background">
 
-    <!-- App Logo / Icon -->
-    <ImageView
-        android:layout_width="150dp"
-        android:layout_height="150dp"
-        android:src="@drawable/img_splash2"
-        android:contentDescription="App Logo" />
 
-    <!-- App Name -->
+    <LinearLayout
+        android:id="@+id/layoutSplashBrand"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="104dp"
+            android:layout_height="104dp"
+            app:cardBackgroundColor="@color/paw_primary_container"
+            app:cardCornerRadius="32dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp">
+
+
+            <ImageView
+                android:layout_width="52dp"
+                android:layout_height="52dp"
+                android:layout_gravity="center"
+                android:contentDescription="PawConnect"
+                android:src="@drawable/ic_paw_auth" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/paw_space_lg"
+            android:text="PawConnect"
+            android:textAppearance="@style/Paw.Text.Headline" />
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/paw_space_xs"
+            android:text="Care. Connect. Stay close."
+            android:textAppearance="@style/Paw.Text.BodySecondary" />
+
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:layout_width="36dp"
+            android:layout_height="36dp"
+            android:layout_marginTop="@dimen/paw_space_xl"
+            android:indeterminate="true"
+            app:indicatorColor="@color/paw_primary"
+            app:trackColor="@color/paw_surface_variant" />
+
+    </LinearLayout>
+
+
     <TextView
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="AuthApp"
-        android:textSize="28sp"
-        android:textStyle="bold"
-        android:textColor="#000000"
-        android:layout_marginTop="16dp" />
+        android:layout_marginStart="@dimen/paw_screen_horizontal"
+        android:layout_marginEnd="@dimen/paw_screen_horizontal"
+        android:layout_marginBottom="@dimen/paw_space_xl"
+        android:gravity="center"
+        android:text="For pet owners and veterinary professionals"
+        android:textAlignment="center"
+        android:textAppearance="@style/Paw.Text.Caption"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
-    <!-- Tagline -->
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Secure. Simple. Fast."
-        android:textSize="14sp"
-        android:textColor="#888888"
-        android:layout_marginTop="8dp" />
 
-    <!-- Loading spinner -->
-    <ProgressBar
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="40dp"
-        android:indeterminate="true" />
-
-</LinearLayout>
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -7,38 +7,33 @@
     app:startDestination="@id/vetHomeFragment">
 
 
-    <!-- New MainActivity destination -->
-
     <fragment
         android:id="@+id/vetHomeFragment"
         android:name="com.example.authapp.ui.main.VetHomeFragment"
         android:label="Home" />
 
 
-    <!-- Temporary migration destinations -->
-
-    <activity
+    <fragment
         android:id="@+id/vetAppointmentsDestination"
-        android:name="com.example.authapp.ui.Appointments.VetAppointmentsActivity"
+        android:name="com.example.authapp.ui.Appointments.VetAppointmentsFragment"
         android:label="Appointments" />
 
 
-    <activity
+    <fragment
         android:id="@+id/vetPatientsDestination"
-        android:name="com.example.authapp.ui.Vets.MyPatientsActivity"
+        android:name="com.example.authapp.ui.Vets.MyPatientsFragment"
         android:label="Patients" />
 
 
-    <activity
+    <fragment
         android:id="@+id/vetMessagesDestination"
-        android:name="com.example.authapp.ui.Chat.InboxActivity"
+        android:name="com.example.authapp.ui.Chat.InboxFragment"
         android:label="Messages" />
 
 
-    <activity
+    <fragment
         android:id="@+id/vetProfileDestination"
-        android:name="com.example.authapp.ui.ProfileActivity"
+        android:name="com.example.authapp.ui.profile.ProfileFragment"
         android:label="Profile" />
-
 
 </navigation>

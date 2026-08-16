@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/paw_background">
+
+
+    <!-- Header -->
+
+    <TextView
+        android:id="@+id/tvInboxTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/paw_screen_horizontal"
+        android:layout_marginTop="@dimen/paw_space_xl"
+        android:layout_marginEnd="@dimen/paw_screen_horizontal"
+        android:text="Messages"
+        android:textAppearance="@style/Paw.Text.Headline"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+    <TextView
+        android:id="@+id/tvInboxSubtitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/paw_screen_horizontal"
+        android:layout_marginTop="@dimen/paw_space_xxs"
+        android:layout_marginEnd="@dimen/paw_screen_horizontal"
+        android:text="Keep up with your conversations."
+        android:textAppearance="@style/Paw.Text.BodySecondary"
+        app:layout_constraintTop_toBottomOf="@id/tvInboxTitle"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+    <!-- Conversation List -->
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/recyclerInbox"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginTop="@dimen/paw_space_lg"
+        android:clipToPadding="false"
+        android:overScrollMode="ifContentScrolls"
+        android:paddingStart="@dimen/paw_screen_horizontal"
+        android:paddingEnd="@dimen/paw_screen_horizontal"
+        android:paddingBottom="@dimen/paw_space_xl"
+        android:scrollbars="none"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/tvInboxSubtitle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+    <!-- Loading -->
+
+    <LinearLayout
+        android:id="@+id/layoutInboxLoading"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/paw_space_2xl"
+        android:layout_marginEnd="@dimen/paw_space_2xl"
+        android:gravity="center"
+        android:orientation="vertical"
+        app:layout_constraintTop_toBottomOf="@id/tvInboxSubtitle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+
+        <com.google.android.material.progressindicator.CircularProgressIndicator
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:indeterminate="true"
+            app:indicatorColor="@color/paw_primary"
+            app:trackColor="@color/paw_surface_variant" />
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/paw_space_md"
+            android:text="Loading conversations..."
+            android:textAppearance="@style/Paw.Text.BodySecondary" />
+
+    </LinearLayout>
+
+
+    <!-- Empty -->
+
+    <LinearLayout
+        android:id="@+id/layoutInboxEmpty"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/paw_space_2xl"
+        android:layout_marginEnd="@dimen/paw_space_2xl"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/tvInboxSubtitle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="88dp"
+            android:layout_height="88dp"
+            app:cardBackgroundColor="@color/paw_primary_container"
+            app:cardCornerRadius="44dp"
+            app:cardElevation="0dp"
+            app:strokeWidth="0dp">
+
+
+            <ImageView
+                android:layout_width="42dp"
+                android:layout_height="42dp"
+                android:layout_gravity="center"
+                android:contentDescription="No conversations"
+                android:src="@drawable/ic_nav_messages"
+                app:tint="@color/paw_primary" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/paw_space_lg"
+            android:text="No conversations yet"
+            android:textAppearance="@style/Paw.Text.TitleLarge" />
+
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/paw_space_xs"
+            android:gravity="center"
+            android:text="Your conversations will appear here after you send or receive a message."
+            android:textAlignment="center"
+            android:textAppearance="@style/Paw.Text.BodySecondary" />
+
+    </LinearLayout>
+
+
+    <!-- Error -->
+
+    <LinearLayout
+        android:id="@+id/layoutInboxError"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/paw_space_2xl"
+        android:layout_marginEnd="@dimen/paw_space_2xl"
+        android:gravity="center"
+        android:orientation="vertical"
+        android:visibility="gone"
+        app:layout_constraintTop_toBottomOf="@id/tvInboxSubtitle"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Unable to load messages"
+            android:textAppearance="@style/Paw.Text.TitleLarge" />
+
+
+        <TextView
+            android:id="@+id/tvInboxError"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/paw_space_xs"
+            android:gravity="center"
+            android:text="Please try again."
+            android:textAlignment="center"
+            android:textAppearance="@style/Paw.Text.BodySecondary" />
+
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnRetryInbox"
+            style="@style/Paw.Button.Primary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/paw_space_lg"
+            android:text="Try Again" />
+
+    </LinearLayout>
+
+
+</androidx.constraintlayout.widget.ConstraintLayout>

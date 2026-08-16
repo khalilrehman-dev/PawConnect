@@ -1,10 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<shape xmlns:android="http://schemas.android.com/apk/res/android"
+
+<shape
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:shape="rectangle">
-    <solid android:color="#FFFFFF" />
+
+
+    <solid
+        android:color="@color/paw_surface_container" />
+
+
+    <stroke
+        android:width="1dp"
+        android:color="@color/paw_outline_variant" />
+
+
     <corners
-        android:topLeftRadius="16dp"
-        android:topRightRadius="16dp"
-        android:bottomLeftRadius="4dp"
-        android:bottomRightRadius="16dp" />
+        android:topLeftRadius="@dimen/paw_radius_medium"
+        android:topRightRadius="@dimen/paw_radius_medium"
+        android:bottomLeftRadius="6dp"
+        android:bottomRightRadius="@dimen/paw_radius_medium" />
+
 </shape>

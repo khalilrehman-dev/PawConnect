@@ -2,29 +2,51 @@ package com.example.authapp.presentation.vets
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.authapp.model.Vet
 import com.example.authapp.domain.repository.VetRepository
+import com.example.authapp.model.Vet
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 @HiltViewModel
 class VetProfileSetupViewModel @Inject constructor(
     private val vetRepository: VetRepository
 ) : ViewModel() {
 
-    sealed class UiState {
-        object Idle    : UiState()
-        object Loading : UiState()
-        object Success : UiState()
-        data class Error(val message: String) : UiState()
 
+    sealed class UiState {
+
+        object Idle :
+            UiState()
+
+
+        object Loading :
+            UiState()
+
+
+        object Success :
+            UiState()
+
+
+        data class Error(
+            val message: String
+        ) : UiState()
     }
 
-    private val _uiState = MutableStateFlow<UiState>(UiState.Idle)
-    val uiState: StateFlow<UiState> = _uiState
+
+    private val _uiState =
+        MutableStateFlow<UiState>(
+            UiState.Idle
+        )
+
+
+    val uiState:
+            StateFlow<UiState> =
+        _uiState
+
 
     fun saveVetProfile(
         uid: String,
@@ -36,31 +58,83 @@ class VetProfileSetupViewModel @Inject constructor(
         specialization: String,
         yearsOfExperience: Int,
         profileImageUrl: String,
-        createdAt: Long = 0L
+        createdAt: Long,
+        isAvailable: Boolean
     ) {
+
         viewModelScope.launch {
-            _uiState.value = UiState.Loading
-            val vet = Vet(
-                uid               = uid,
-                displayName       = displayName,
-                clinicName        = clinicName,
-                city              = city,
-                address           = address,
-                phoneNumber       = phoneNumber,
-                specialization    = specialization,
-                yearsOfExperience = yearsOfExperience,
-                profileImageUrl   = profileImageUrl,
-                isAvailable       = true,
-                createdAt =
-                    if (createdAt > 0L) {
-                        createdAt
-                    } else {
-                        System.currentTimeMillis()
-                    }
-            )
-            vetRepository.saveVetProfile(vet)
-                .onSuccess { _uiState.value = UiState.Success }
-                .onFailure { _uiState.value = UiState.Error(it.message ?: "Failed to save profile") }
+
+            _uiState.value =
+                UiState.Loading
+
+
+            val preservedCreatedAt =
+                if (
+                    createdAt > 0L
+                ) {
+
+                    createdAt
+
+                } else {
+
+                    System.currentTimeMillis()
+                }
+
+
+            val vet =
+                Vet(
+                    uid =
+                        uid,
+
+                    displayName =
+                        displayName,
+
+                    clinicName =
+                        clinicName,
+
+                    city =
+                        city,
+
+                    address =
+                        address,
+
+                    phoneNumber =
+                        phoneNumber,
+
+                    specialization =
+                        specialization,
+
+                    yearsOfExperience =
+                        yearsOfExperience,
+
+                    profileImageUrl =
+                        profileImageUrl,
+
+                    isAvailable =
+                        isAvailable,
+
+                    createdAt =
+                        preservedCreatedAt
+                )
+
+
+            vetRepository
+                .saveVetProfile(
+                    vet
+                )
+                .onSuccess {
+
+                    _uiState.value =
+                        UiState.Success
+                }
+                .onFailure { error ->
+
+                    _uiState.value =
+                        UiState.Error(
+                            error.message
+                                ?: "Failed to save professional profile."
+                        )
+                }
         }
     }
 }

@@ -4,11 +4,20 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.CountDownTimer
 import android.view.View
-import android.widget.*
+import android.view.WindowManager
+import android.widget.TextView
+import android.widget.Toast
+import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
 import com.example.authapp.R
 import com.example.authapp.domain.repository.AuthRepository
-import com.example.authapp.ui.Vets.VetProfileSetupActivity
+import com.example.authapp.ui.main.MainActivity
+import com.google.android.material.appbar.MaterialToolbar
+import com.google.android.material.button.MaterialButton
+import com.google.android.material.progressindicator.CircularProgressIndicator
 import com.google.android.material.textfield.TextInputEditText
 import com.google.android.material.textfield.TextInputLayout
 import com.google.firebase.FirebaseException
@@ -17,246 +26,930 @@ import com.google.firebase.auth.PhoneAuthCredential
 import com.google.firebase.auth.PhoneAuthOptions
 import com.google.firebase.auth.PhoneAuthProvider
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
 import java.util.concurrent.TimeUnit
 import javax.inject.Inject
 
+
 @AndroidEntryPoint
-class OtpActivity : AppCompatActivity() {
+class OtpActivity :
+    AppCompatActivity() {
 
-    @Inject lateinit var authRepository: AuthRepository
+    @Inject
+    lateinit var authRepository:
+            AuthRepository
 
-    private lateinit var tvOtpSentTo: TextView
-    private lateinit var tvOtpLabel: TextView
-    private lateinit var tilOtp: TextInputLayout
-    private lateinit var etOtp: TextInputEditText
-    private lateinit var btnVerify: Button
-    private lateinit var btnOpenMail: Button
-    private lateinit var tvResend: TextView
-    private lateinit var progressBar: ProgressBar
 
-    private var otpType: String        = "email"
-    private var userEmail: String      = ""
-    private var userName: String       = ""
-    private var userRole: String       = ""
-    private var userPhone: String      = ""
-    private var verificationId: String = ""
+    private lateinit var root:
+            View
 
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_otp)
+    private lateinit var toolbar:
+            MaterialToolbar
 
-        otpType        = intent.getStringExtra("type")           ?: "email"
-        userEmail      = intent.getStringExtra("email")          ?: ""
-        userName       = intent.getStringExtra("name")           ?: ""
-        userRole       = intent.getStringExtra("role")           ?: ""
-        userPhone      = intent.getStringExtra("phone")          ?: ""
-        verificationId = intent.getStringExtra("verificationId") ?: ""
+
+    private lateinit var tvVerificationTitle:
+            TextView
+
+    private lateinit var tvOtpSentTo:
+            TextView
+
+    private lateinit var tvOtpLabel:
+            TextView
+
+
+    private lateinit var tilOtp:
+            TextInputLayout
+
+    private lateinit var etOtp:
+            TextInputEditText
+
+
+    private lateinit var btnVerify:
+            MaterialButton
+
+    private lateinit var btnOpenMail:
+            MaterialButton
+
+
+    private lateinit var tvResend:
+            TextView
+
+    private lateinit var progressBar:
+            CircularProgressIndicator
+
+
+    private var otpType =
+        "email"
+
+    private var userEmail =
+        ""
+
+    private var userName =
+        ""
+
+    private var userRole =
+        ""
+
+    private var userPhone =
+        ""
+
+    private var verificationId =
+        ""
+
+
+    private var resendTimer:
+            CountDownTimer? =
+        null
+
+
+    private var isBusy =
+        false
+
+
+    override fun onCreate(
+        savedInstanceState: Bundle?
+    ) {
+        super.onCreate(
+            savedInstanceState
+        )
+
+
+        enableEdgeToEdge()
+
+
+        setContentView(
+            R.layout.activity_otp
+        )
+
+
+        window.setSoftInputMode(
+            WindowManager.LayoutParams
+                .SOFT_INPUT_STATE_ALWAYS_HIDDEN or
+                    WindowManager.LayoutParams
+                        .SOFT_INPUT_ADJUST_RESIZE
+        )
+
+
+        readIntent()
 
         bindViews()
+
+        applySystemInsets()
+
+        setupToolbar()
+
         setupUiForType()
     }
 
-    private fun bindViews() {
-        tvOtpSentTo = findViewById(R.id.tvOtpSentTo)
-        tvOtpLabel  = findViewById(R.id.tvOtpLabel)
-        tilOtp      = findViewById(R.id.tilOtp)
-        etOtp       = findViewById(R.id.etOtp)
-        btnVerify   = findViewById(R.id.btnVerify)
-        btnOpenMail = findViewById(R.id.btnOpenMail)
-        tvResend    = findViewById(R.id.tvResend)
-        progressBar = findViewById(R.id.progressBar)
+
+    private fun readIntent() {
+
+        otpType =
+            intent
+                .getStringExtra(
+                    "type"
+                )
+                ?: "email"
+
+
+        userEmail =
+            intent
+                .getStringExtra(
+                    "email"
+                )
+                .orEmpty()
+
+
+        userName =
+            intent
+                .getStringExtra(
+                    "name"
+                )
+                .orEmpty()
+
+
+        userRole =
+            intent
+                .getStringExtra(
+                    "role"
+                )
+                .orEmpty()
+
+
+        userPhone =
+            intent
+                .getStringExtra(
+                    "phone"
+                )
+                .orEmpty()
+
+
+        verificationId =
+            intent
+                .getStringExtra(
+                    "verificationId"
+                )
+                .orEmpty()
     }
+
+
+    private fun bindViews() {
+
+        root =
+            findViewById(
+                R.id.rootOtp
+            )
+
+
+        toolbar =
+            findViewById(
+                R.id.toolbarOtp
+            )
+
+
+        tvVerificationTitle =
+            findViewById(
+                R.id.tvVerificationTitle
+            )
+
+
+        tvOtpSentTo =
+            findViewById(
+                R.id.tvOtpSentTo
+            )
+
+
+        tvOtpLabel =
+            findViewById(
+                R.id.tvOtpLabel
+            )
+
+
+        tilOtp =
+            findViewById(
+                R.id.tilOtp
+            )
+
+
+        etOtp =
+            findViewById(
+                R.id.etOtp
+            )
+
+
+        btnVerify =
+            findViewById(
+                R.id.btnVerify
+            )
+
+
+        btnOpenMail =
+            findViewById(
+                R.id.btnOpenMail
+            )
+
+
+        tvResend =
+            findViewById(
+                R.id.tvResend
+            )
+
+
+        progressBar =
+            findViewById(
+                R.id.progressBar
+            )
+    }
+
+
+    private fun applySystemInsets() {
+
+        ViewCompat
+            .setOnApplyWindowInsetsListener(
+                root
+            ) { view, insets ->
+
+                val bars =
+                    insets.getInsets(
+                        WindowInsetsCompat
+                            .Type
+                            .systemBars()
+                    )
+
+
+                view.setPadding(
+                    bars.left,
+                    bars.top,
+                    bars.right,
+                    bars.bottom
+                )
+
+
+                insets
+            }
+    }
+
+
+    private fun setupToolbar() {
+
+        toolbar.setNavigationOnClickListener {
+
+            onBackPressedDispatcher
+                .onBackPressed()
+        }
+    }
+
 
     private fun setupUiForType() {
-        when (otpType) {
+
+        when (
+            otpType
+        ) {
 
             "email" -> {
+
+                setupEmailVerification()
+            }
+
+
+            "phone_signup",
+            "phone_login" -> {
+
+                setupPhoneVerification()
+            }
+
+
+            else -> {
+
+                tvVerificationTitle.text =
+                    "Unable to verify"
+
+
                 tvOtpSentTo.text =
-                    "A verification link was sent to:\n$userEmail\n\n" +
-                            "Open your email inbox and tap the verification link. " +
-                            "If you don't see it, check your Spam or Junk folder. " +
-                            "Then return to PawConnect and press Continue."
+                    "Verification information is missing."
 
-                tilOtp.visibility      = View.GONE
-                tvOtpLabel.visibility  = View.GONE
-                btnOpenMail.visibility = View.VISIBLE
-                btnVerify.text         = "I've Verified — Continue"
 
-                btnVerify.setOnClickListener   { verifyEmail() }
-                btnOpenMail.setOnClickListener { openEmailApp() }
+                tilOtp.visibility =
+                    View.GONE
 
-                startResendTimer(isPhone = false)
-                tvResend.setOnClickListener {
-                    CoroutineScope(Dispatchers.Main).launch {
-                        authRepository.sendEmailVerification()
-                        Toast.makeText(
-                            this@OtpActivity,
-                            "Verification email resent. Check spam.",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                    startResendTimer(isPhone = false)
-                }
-            }
 
-            "phone_signup", "phone_login" -> {
-                tvOtpSentTo.text       = "Enter the 6-digit OTP sent to\n$userPhone"
-                tilOtp.visibility      = View.VISIBLE
-                tvOtpLabel.visibility  = View.VISIBLE
-                btnOpenMail.visibility = View.GONE
-                btnVerify.text         = "Verify OTP"
+                tvOtpLabel.visibility =
+                    View.GONE
 
-                btnVerify.setOnClickListener { verifyPhoneOtp() }
 
-                startResendTimer(isPhone = true)
-                tvResend.setOnClickListener {
-                    resendPhoneOtp()
-                    startResendTimer(isPhone = true)
-                }
+                btnOpenMail.visibility =
+                    View.GONE
+
+
+                btnVerify.isEnabled =
+                    false
+
+
+                tvResend.visibility =
+                    View.GONE
             }
         }
     }
 
-    // ── Email verification ────────────────────────────────────────────────────
 
-    private fun verifyEmail() {
-        showLoading(true)
-        CoroutineScope(Dispatchers.IO).launch {
-            var verified = false
-            repeat(6) { attempt ->
-                if (verified) return@repeat
-                try {
-                    // Force a fresh Firebase instance reload each time
-                    FirebaseAuth.getInstance().currentUser?.reload()?.await()
-                    val isVerified = FirebaseAuth.getInstance().currentUser?.isEmailVerified ?: false
-                    if (isVerified) {
-                        verified = true
-                    }
-                } catch (e: Exception) {
-                    // ignore and retry
-                }
-                if (!verified) delay(3000)
-            }
-            withContext(Dispatchers.Main) {
-                showLoading(false)
-                if (verified) {
-                    proceedAfterVerification()
-                } else {
-                    Toast.makeText(
-                        this@OtpActivity,
-                        "Not verified yet. Open Gmail app → Spam → click the link, then try again.",
-                        Toast.LENGTH_LONG
-                    ).show()
-                }
-            }
-        }
-    }
+    private fun setupEmailVerification() {
 
-    private fun openEmailApp() {
-        try {
-            startActivity(
-                Intent(Intent.ACTION_MAIN).apply {
-                    addCategory(Intent.CATEGORY_APP_EMAIL)
-                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                }
-            )
-        } catch (e: Exception) {
-            Toast.makeText(this, "No email app found", Toast.LENGTH_SHORT).show()
-        }
-    }
+        tvVerificationTitle.text =
+            "Verify your email"
 
-    // ── Phone OTP ─────────────────────────────────────────────────────────────
 
-    private fun verifyPhoneOtp() {
-        val code = etOtp.text.toString().trim()
-        if (code.length != 6) {
-            tilOtp.error = "Enter the 6-digit OTP"
-            return
-        }
-        tilOtp.error = null
-        showLoading(true)
+        tvOtpSentTo.text =
+            if (
+                userEmail.isBlank()
+            ) {
 
-        CoroutineScope(Dispatchers.Main).launch {
-            val result = authRepository.signInWithPhoneCredential(
-                verificationId = verificationId,
-                smsCode        = code,
-                displayName    = userName,
-                role           = userRole
-            )
-            showLoading(false)
-            if (result.isSuccess) {
-                // ✅ Fixed — was incorrectly calling verifyEmail() before
-                proceedAfterVerification()
+                "Open the verification email sent to your account and tap the verification link."
+
             } else {
-                tilOtp.error = result.exceptionOrNull()?.message ?: "Invalid OTP"
-            }
-        }
-    }
 
-    private fun resendPhoneOtp() {
-        if (userPhone.isEmpty()) return
-        showLoading(true)
-        PhoneAuthProvider.verifyPhoneNumber(
-            PhoneAuthOptions.newBuilder(FirebaseAuth.getInstance())
-                .setPhoneNumber(userPhone)
-                .setTimeout(60L, TimeUnit.SECONDS)
-                .setActivity(this)
-                .setCallbacks(object : PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
-                    override fun onVerificationCompleted(c: PhoneAuthCredential) {}
-                    override fun onVerificationFailed(e: FirebaseException) {
-                        showLoading(false)
-                        Toast.makeText(
-                            this@OtpActivity,
-                            e.message ?: "Failed to resend",
-                            Toast.LENGTH_LONG
-                        ).show()
-                    }
-                    override fun onCodeSent(vId: String, t: PhoneAuthProvider.ForceResendingToken) {
-                        showLoading(false)
-                        verificationId = vId
-                        Toast.makeText(this@OtpActivity, "OTP resent", Toast.LENGTH_SHORT).show()
-                    }
-                }).build()
+                "We sent a verification link to:\n$userEmail\n\nOpen the link, then return here."
+            }
+
+
+        tvOtpLabel.visibility =
+            View.GONE
+
+
+        tilOtp.visibility =
+            View.GONE
+
+
+        btnOpenMail.visibility =
+            View.VISIBLE
+
+
+        btnVerify.text =
+            "I've Verified — Continue"
+
+
+        btnVerify.setOnClickListener {
+
+            verifyEmail()
+        }
+
+
+        btnOpenMail.setOnClickListener {
+
+            openEmailApp()
+        }
+
+
+        tvResend.setOnClickListener {
+
+            resendEmailVerification()
+        }
+
+
+        startResendTimer(
+            phone = false
         )
     }
 
-    // ── Navigation after verification ─────────────────────────────────────────
+
+    private fun setupPhoneVerification() {
+
+        tvVerificationTitle.text =
+            "Verify your phone"
+
+
+        tvOtpSentTo.text =
+            if (
+                userPhone.isBlank()
+            ) {
+
+                "Enter the 6-digit verification code."
+
+            } else {
+
+                "Enter the 6-digit code sent to:\n$userPhone"
+            }
+
+
+        tvOtpLabel.visibility =
+            View.VISIBLE
+
+
+        tilOtp.visibility =
+            View.VISIBLE
+
+
+        btnOpenMail.visibility =
+            View.GONE
+
+
+        btnVerify.text =
+            "Verify Code"
+
+
+        btnVerify.setOnClickListener {
+
+            verifyPhoneOtp()
+        }
+
+
+        tvResend.setOnClickListener {
+
+            resendPhoneOtp()
+        }
+
+
+        startResendTimer(
+            phone = true
+        )
+    }
+
+
+    private fun verifyEmail() {
+
+        if (
+            isBusy
+        ) {
+
+            return
+        }
+
+
+        showLoading(
+            true
+        )
+
+
+        lifecycleScope.launch {
+
+            /*
+             * One fresh Firebase reload is enough.
+             *
+             * Do not keep the user waiting through an
+             * artificial multi-second polling loop.
+             */
+            val result =
+                authRepository
+                    .reloadAndGetUser()
+
+
+            showLoading(
+                false
+            )
+
+
+            if (
+                result.isSuccess &&
+                result
+                    .getOrThrow()
+                    .isEmailVerified
+            ) {
+
+                proceedAfterVerification()
+
+            } else {
+
+                Toast.makeText(
+                    this@OtpActivity,
+                    "Your email is not verified yet. Open the verification link, then try again.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+
+    private fun resendEmailVerification() {
+
+        if (
+            isBusy ||
+            !tvResend.isEnabled
+        ) {
+
+            return
+        }
+
+
+        showLoading(
+            true
+        )
+
+
+        lifecycleScope.launch {
+
+            val result =
+                authRepository
+                    .sendEmailVerification()
+
+
+            showLoading(
+                false
+            )
+
+
+            if (
+                result.isSuccess
+            ) {
+
+                Toast.makeText(
+                    this@OtpActivity,
+                    "Verification email sent again.",
+                    Toast.LENGTH_SHORT
+                ).show()
+
+
+                startResendTimer(
+                    phone = false
+                )
+
+            } else {
+
+                Toast.makeText(
+                    this@OtpActivity,
+                    result
+                        .exceptionOrNull()
+                        ?.message
+                        ?: "Unable to resend verification email.",
+                    Toast.LENGTH_LONG
+                ).show()
+            }
+        }
+    }
+
+
+    private fun openEmailApp() {
+
+        try {
+
+            startActivity(
+                Intent(
+                    Intent.ACTION_MAIN
+                ).apply {
+
+                    addCategory(
+                        Intent.CATEGORY_APP_EMAIL
+                    )
+
+
+                    addFlags(
+                        Intent.FLAG_ACTIVITY_NEW_TASK
+                    )
+                }
+            )
+
+        } catch (
+            exception: Exception
+        ) {
+
+            Toast.makeText(
+                this,
+                "No email app was found on this device.",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+    }
+
+
+    private fun verifyPhoneOtp() {
+
+        if (
+            isBusy
+        ) {
+
+            return
+        }
+
+
+        val code =
+            etOtp
+                .text
+                ?.toString()
+                ?.trim()
+                .orEmpty()
+
+
+        if (
+            code.length != 6 ||
+            !code.all {
+                    character ->
+                character.isDigit()
+            }
+        ) {
+
+            tilOtp.error =
+                "Enter the 6-digit code"
+
+
+            return
+        }
+
+
+        if (
+            verificationId.isBlank()
+        ) {
+
+            tilOtp.error =
+                "Verification session expired. Request a new code."
+
+
+            return
+        }
+
+
+        tilOtp.error =
+            null
+
+
+        showLoading(
+            true
+        )
+
+
+        lifecycleScope.launch {
+
+            val result =
+                authRepository
+                    .signInWithPhoneCredential(
+                        verificationId =
+                            verificationId,
+
+                        smsCode =
+                            code,
+
+                        displayName =
+                            userName,
+
+                        role =
+                            userRole
+                    )
+
+
+            showLoading(
+                false
+            )
+
+
+            if (
+                result.isSuccess
+            ) {
+
+                proceedAfterVerification()
+
+            } else {
+
+                tilOtp.error =
+                    result
+                        .exceptionOrNull()
+                        ?.message
+                        ?: "Invalid verification code"
+            }
+        }
+    }
+
+
+    private fun resendPhoneOtp() {
+
+        if (
+            isBusy ||
+            !tvResend.isEnabled
+        ) {
+
+            return
+        }
+
+
+        if (
+            userPhone.isBlank()
+        ) {
+
+            Toast.makeText(
+                this,
+                "Phone number is missing.",
+                Toast.LENGTH_SHORT
+            ).show()
+
+
+            return
+        }
+
+
+        showLoading(
+            true
+        )
+
+
+        PhoneAuthProvider
+            .verifyPhoneNumber(
+
+                PhoneAuthOptions
+                    .newBuilder(
+                        FirebaseAuth.getInstance()
+                    )
+                    .setPhoneNumber(
+                        userPhone
+                    )
+                    .setTimeout(
+                        60L,
+                        TimeUnit.SECONDS
+                    )
+                    .setActivity(
+                        this
+                    )
+                    .setCallbacks(
+
+                        object :
+                            PhoneAuthProvider
+                            .OnVerificationStateChangedCallbacks() {
+
+
+                            override fun onVerificationCompleted(
+                                credential:
+                                PhoneAuthCredential
+                            ) {
+
+                                /*
+                                 * Explicit OTP entry remains
+                                 * the single flow.
+                                 */
+                            }
+
+
+                            override fun onVerificationFailed(
+                                exception:
+                                FirebaseException
+                            ) {
+
+                                showLoading(
+                                    false
+                                )
+
+
+                                Toast.makeText(
+                                    this@OtpActivity,
+                                    exception.message
+                                        ?: "Unable to resend code.",
+                                    Toast.LENGTH_LONG
+                                ).show()
+                            }
+
+
+                            override fun onCodeSent(
+                                newVerificationId:
+                                String,
+
+                                token:
+                                PhoneAuthProvider
+                                .ForceResendingToken
+                            ) {
+
+                                verificationId =
+                                    newVerificationId
+
+
+                                showLoading(
+                                    false
+                                )
+
+
+                                Toast.makeText(
+                                    this@OtpActivity,
+                                    "Verification code sent again.",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+
+
+                                startResendTimer(
+                                    phone = true
+                                )
+                            }
+                        }
+                    )
+                    .build()
+            )
+    }
+
 
     private fun proceedAfterVerification() {
+
+        resendTimer?.cancel()
+
+
         startActivity(
             Intent(
                 this,
-                com.example.authapp.ui.main.MainActivity::class.java
-            ).apply
-            {
-                flags = Intent.FLAG_ACTIVITY_NEW_TASK or
-                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+                MainActivity::class.java
+            ).apply {
+
+                flags =
+                    Intent.FLAG_ACTIVITY_NEW_TASK or
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK
             }
         )
+
+
         finish()
     }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
 
-    private fun startResendTimer(isPhone: Boolean) {
-        tvResend.isEnabled = false
-        object : CountDownTimer(30_000, 1_000) {
-            override fun onTick(ms: Long) { tvResend.text = "Resend in ${ms / 1000}s" }
-            override fun onFinish() {
-                tvResend.text      = if (isPhone) "Resend OTP" else "Resend email"
-                tvResend.isEnabled = true
+    private fun startResendTimer(
+        phone: Boolean
+    ) {
+
+        resendTimer?.cancel()
+
+
+        tvResend.isEnabled =
+            false
+
+
+        resendTimer =
+            object :
+                CountDownTimer(
+                    30_000L,
+                    1_000L
+                ) {
+
+
+                override fun onTick(
+                    millisUntilFinished:
+                    Long
+                ) {
+
+                    tvResend.text =
+                        "Resend in ${millisUntilFinished / 1_000}s"
+                }
+
+
+                override fun onFinish() {
+
+                    tvResend.text =
+                        if (
+                            phone
+                        ) {
+
+                            "Resend code"
+
+                        } else {
+
+                            "Resend verification email"
+                        }
+
+
+                    tvResend.isEnabled =
+                        true
+                }
             }
-        }.start()
+                .start()
     }
 
-    private fun showLoading(show: Boolean) {
-        progressBar.visibility = if (show) View.VISIBLE else View.GONE
-        btnVerify.isEnabled    = !show
+
+    private fun showLoading(
+        loading: Boolean
+    ) {
+
+        isBusy =
+            loading
+
+
+        progressBar.visibility =
+            if (
+                loading
+            ) {
+
+                View.VISIBLE
+
+            } else {
+
+                View.GONE
+            }
+
+
+        btnVerify.isEnabled =
+            !loading
+
+
+        btnOpenMail.isEnabled =
+            !loading
+
+
+        etOtp.isEnabled =
+            !loading
+
+
+        if (
+            loading
+        ) {
+
+            tvResend.isEnabled =
+                false
+        }
+    }
+
+
+    override fun onDestroy() {
+
+        resendTimer?.cancel()
+
+
+        super.onDestroy()
     }
 }

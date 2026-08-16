@@ -7,15 +7,11 @@
     app:startDestination="@id/ownerHomeFragment">
 
 
-    <!-- Home -->
-
     <fragment
         android:id="@+id/ownerHomeFragment"
         android:name="com.example.authapp.ui.main.OwnerHomeFragment"
         android:label="Home" />
 
-
-    <!-- My Pets -->
 
     <fragment
         android:id="@+id/ownerPetsDestination"
@@ -23,15 +19,11 @@
         android:label="My Pets" />
 
 
-    <!-- Discover -->
-
     <fragment
         android:id="@+id/ownerDiscoverDestination"
         android:name="com.example.authapp.ui.discover.DiscoverFragment"
         android:label="Discover" />
 
-
-    <!-- Appointments -->
 
     <fragment
         android:id="@+id/ownerAppointmentsDestination"
@@ -39,11 +31,9 @@
         android:label="Appointments" />
 
 
-    <!-- Messages still temporary Activity destination -->
-
-    <activity
+    <fragment
         android:id="@+id/ownerMessagesDestination"
-        android:name="com.example.authapp.ui.Chat.InboxActivity"
+        android:name="com.example.authapp.ui.Chat.InboxFragment"
         android:label="Messages" />
 
 </navigation>

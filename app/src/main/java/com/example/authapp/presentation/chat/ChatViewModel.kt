@@ -16,11 +16,17 @@ import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+
 @HiltViewModel
 class ChatViewModel @Inject constructor(
     private val chatRepository: ChatRepository,
     private val authRepository: AuthRepository
 ) : ViewModel() {
+
+
+    // =========================================================
+    // Messages
+    // =========================================================
 
     private val _messages =
         MutableStateFlow<List<Message>>(
@@ -31,6 +37,10 @@ class ChatViewModel @Inject constructor(
         _messages.asStateFlow()
 
 
+    // =========================================================
+    // Inbox
+    // =========================================================
+
     private val _inbox =
         MutableStateFlow<List<Chat>>(
             emptyList()
@@ -40,6 +50,10 @@ class ChatViewModel @Inject constructor(
         _inbox.asStateFlow()
 
 
+    // =========================================================
+    // Active chat ID
+    // =========================================================
+
     private val _chatId =
         MutableStateFlow("")
 
@@ -47,12 +61,33 @@ class ChatViewModel @Inject constructor(
         _chatId.asStateFlow()
 
 
+    // =========================================================
+    // Chat screen state
+    // =========================================================
+
+    private val _uiState =
+        MutableStateFlow<ChatUiState>(
+            ChatUiState.Idle
+        )
+
+    val uiState =
+        _uiState.asStateFlow()
+
+
+    // =========================================================
+    // Unread
+    // =========================================================
+
     private val _unreadCount =
         MutableStateFlow(0)
 
     val unreadCount =
         _unreadCount.asStateFlow()
 
+
+    // =========================================================
+    // One-time events
+    // =========================================================
 
     private val _events =
         Channel<ChatEvent>(
@@ -63,42 +98,68 @@ class ChatViewModel @Inject constructor(
         _events.receiveAsFlow()
 
 
-    private var messagesJob: Job? = null
-    private var inboxJob: Job? = null
-    private var unreadJob: Job? = null
+    // =========================================================
+    // Jobs
+    // =========================================================
+
+    private var messagesJob:
+            Job? =
+        null
+
+    private var inboxJob:
+            Job? =
+        null
+
+    private var unreadJob:
+            Job? =
+        null
 
 
     val myUid: String
         get() =
-            authRepository.getCurrentUid()
-                ?: ""
+            authRepository
+                .getCurrentUid()
+                .orEmpty()
 
 
-    // ─────────────────────────────────────
+    // =========================================================
     // Unread count
-    // ─────────────────────────────────────
+    // =========================================================
 
     fun loadUnreadCount() {
 
         val uid =
-            authRepository.getCurrentUid()
+            authRepository
+                .getCurrentUid()
 
-        if (uid.isNullOrBlank()) {
 
-            _unreadCount.value = 0
+        if (
+            uid.isNullOrBlank()
+        ) {
+
+            unreadJob?.cancel()
+
+            _unreadCount.value =
+                0
+
             return
         }
 
+
         unreadJob?.cancel()
+
 
         unreadJob =
             viewModelScope.launch {
 
                 chatRepository
-                    .getInbox(uid)
+                    .getInbox(
+                        uid
+                    )
                     .catch {
 
-                        _unreadCount.value = 0
+                        _unreadCount.value =
+                            0
                     }
                     .collect { chats ->
 
@@ -117,33 +178,44 @@ class ChatViewModel @Inject constructor(
     ) {
 
         val uid =
-            authRepository.getCurrentUid()
+            authRepository
+                .getCurrentUid()
                 ?: return
 
-        if (chatId.isBlank()) {
+
+        if (
+            chatId.isBlank()
+        ) {
+
             return
         }
 
+
         viewModelScope.launch {
 
-            chatRepository.markChatAsRead(
-                chatId,
-                uid
-            )
+            chatRepository
+                .markChatAsRead(
+                    chatId,
+                    uid
+                )
         }
     }
 
 
-    // ─────────────────────────────────────
-    // Inbox
-    // ─────────────────────────────────────
+    // =========================================================
+    // Legacy Inbox support
+    // =========================================================
 
     fun loadInbox() {
 
         val uid =
-            authRepository.getCurrentUid()
+            authRepository
+                .getCurrentUid()
 
-        if (uid.isNullOrBlank()) {
+
+        if (
+            uid.isNullOrBlank()
+        ) {
 
             viewModelScope.launch {
 
@@ -157,13 +229,17 @@ class ChatViewModel @Inject constructor(
             return
         }
 
+
         inboxJob?.cancel()
+
 
         inboxJob =
             viewModelScope.launch {
 
                 chatRepository
-                    .getInbox(uid)
+                    .getInbox(
+                        uid
+                    )
                     .catch {
 
                         _events.send(
@@ -186,12 +262,16 @@ class ChatViewModel @Inject constructor(
                                                     chat.otherUserId
                                                 )
 
-                                        if (result.isSuccess) {
+
+                                        if (
+                                            result.isSuccess
+                                        ) {
 
                                             result
                                                 .getOrThrow()
                                                 .displayName
                                                 .ifBlank {
+
                                                     "User"
                                                 }
 
@@ -207,10 +287,13 @@ class ChatViewModel @Inject constructor(
                                         "User"
                                     }
 
+
                                 chat.copy(
-                                    otherUserName = name
+                                    otherUserName =
+                                        name
                                 )
                             }
+
 
                         _inbox.value =
                             enriched
@@ -219,48 +302,63 @@ class ChatViewModel @Inject constructor(
     }
 
 
-    // ─────────────────────────────────────
+    // =========================================================
     // Open / create chat
-    // ─────────────────────────────────────
+    // =========================================================
 
     fun openChat(
         otherUid: String
     ) {
 
+        startOpening()
+
+
         val currentUid =
-            authRepository.getCurrentUid()
+            authRepository
+                .getCurrentUid()
 
-        if (currentUid.isNullOrBlank()) {
 
-            sendError(
-                "Session expired"
+        if (
+            currentUid.isNullOrBlank()
+        ) {
+
+            showScreenError(
+                "Your session has expired. Please sign in again."
             )
 
             return
         }
 
-        if (otherUid.isBlank()) {
 
-            sendError(
-                "User not found"
+        if (
+            otherUid.isBlank()
+        ) {
+
+            showScreenError(
+                "The user for this conversation could not be found."
             )
 
             return
         }
 
-        if (otherUid == currentUid) {
 
-            sendError(
-                "You cannot message yourself"
+        if (
+            otherUid == currentUid
+        ) {
+
+            showScreenError(
+                "You cannot start a conversation with yourself."
             )
 
             return
         }
+
 
         viewModelScope.launch {
 
             /*
-             * Ensure target user actually exists.
+             * First verify that the other user
+             * still exists.
              */
             val otherUserResult =
                 authRepository
@@ -268,17 +366,23 @@ class ChatViewModel @Inject constructor(
                         otherUid
                     )
 
-            if (otherUserResult.isFailure) {
 
-                _events.send(
-                    ChatEvent.Error(
-                        "This user is unavailable"
-                    )
+            if (
+                otherUserResult.isFailure
+            ) {
+
+                showScreenError(
+                    "This user is currently unavailable."
                 )
 
                 return@launch
             }
 
+
+            /*
+             * Repository safely returns an existing
+             * deterministic chat or creates one.
+             */
             val result =
                 chatRepository
                     .getOrCreateChat(
@@ -286,7 +390,10 @@ class ChatViewModel @Inject constructor(
                         otherUid
                     )
 
-            if (result.isSuccess) {
+
+            if (
+                result.isSuccess
+            ) {
 
                 activateChat(
                     result.getOrThrow()
@@ -294,70 +401,90 @@ class ChatViewModel @Inject constructor(
 
             } else {
 
-                _events.send(
-                    ChatEvent.Error(
-                        result.exceptionOrNull()
-                            ?.message
-                            ?: "Failed to open chat"
-                    )
+                showScreenError(
+                    result
+                        .exceptionOrNull()
+                        ?.message
+                        ?: "Unable to open this conversation."
                 )
             }
         }
     }
 
 
-    // ─────────────────────────────────────
+    // =========================================================
     // Open existing chat from Inbox
-    // ─────────────────────────────────────
+    // =========================================================
 
     fun initWithChatId(
         chatId: String
     ) {
 
+        startOpening()
+
+
         val uid =
-            authRepository.getCurrentUid()
+            authRepository
+                .getCurrentUid()
 
-        if (uid.isNullOrBlank()) {
 
-            sendError(
-                "Session expired"
+        if (
+            uid.isNullOrBlank()
+        ) {
+
+            showScreenError(
+                "Your session has expired. Please sign in again."
             )
 
             return
         }
 
-        if (chatId.isBlank()) {
 
-            sendError(
-                "Chat not found"
+        if (
+            chatId.isBlank()
+        ) {
+
+            showScreenError(
+                "Conversation information is missing."
             )
 
             return
         }
+
 
         viewModelScope.launch {
 
+            /*
+             * Existing chat IDs must be validated
+             * before listening to their messages.
+             */
             val accessResult =
-                chatRepository.canAccessChat(
-                    chatId,
-                    uid
-                )
+                chatRepository
+                    .canAccessChat(
+                        chatId,
+                        uid
+                    )
+
 
             val allowed =
-                accessResult.getOrElse {
-                    false
-                }
+                accessResult
+                    .getOrElse {
 
-            if (!allowed) {
+                        false
+                    }
 
-                _events.send(
-                    ChatEvent.Error(
-                        "You cannot access this chat"
-                    )
+
+            if (
+                !allowed
+            ) {
+
+                showScreenError(
+                    "You cannot access this conversation."
                 )
 
                 return@launch
             }
+
 
             activateChat(
                 chatId
@@ -366,70 +493,145 @@ class ChatViewModel @Inject constructor(
     }
 
 
-    private suspend fun activateChat(
+    private fun startOpening() {
+
+        /*
+         * Cancel a previous listener if this is a retry.
+         */
+        messagesJob?.cancel()
+
+
+        _messages.value =
+            emptyList()
+
+
+        _chatId.value =
+            ""
+
+
+        _uiState.value =
+            ChatUiState.Opening
+    }
+
+
+    private fun activateChat(
         chatId: String
     ) {
 
         _chatId.value =
             chatId
 
+
+        /*
+         * IMPORTANT:
+         *
+         * We do NOT mark the UI as Ready here.
+         *
+         * The screen stays on "Opening conversation..."
+         * until Firestore gives us its FIRST message snapshot.
+         *
+         * That snapshot may contain messages OR an actual
+         * empty list. Only after that do we know the chat
+         * successfully loaded.
+         */
         listenToMessages(
             chatId
-        )
-
-        _events.send(
-            ChatEvent.ChatReady(
-                chatId
-            )
         )
     }
 
 
-    // ─────────────────────────────────────
+    // =========================================================
     // Realtime messages
-    // ─────────────────────────────────────
+    // =========================================================
 
     private fun listenToMessages(
         chatId: String
     ) {
 
         val uid =
-            authRepository.getCurrentUid()
-                ?: return
+            authRepository
+                .getCurrentUid()
+
+
+        if (
+            uid.isNullOrBlank()
+        ) {
+
+            showScreenError(
+                "Your session has expired. Please sign in again."
+            )
+
+            return
+        }
+
 
         messagesJob?.cancel()
+
 
         messagesJob =
             viewModelScope.launch {
 
                 chatRepository
-                    .getMessages(chatId)
+                    .getMessages(
+                        chatId
+                    )
                     .catch {
 
+                        /*
+                         * A realtime listener failure is a
+                         * genuine conversation-load error.
+                         */
                         _messages.value =
                             emptyList()
+
 
                         _chatId.value =
                             ""
 
-                        _events.send(
-                            ChatEvent.Error(
-                                "Unable to load this chat"
+
+                        _uiState.value =
+                            ChatUiState.Error(
+                                "Unable to load this conversation."
                             )
-                        )
                     }
                     .collect { messages ->
 
                         _messages.value =
                             messages
 
+
                         /*
-                         * If a received message arrives while
-                         * user is already viewing the chat,
-                         * keep unread state cleared.
+                         * The first successful Firestore snapshot
+                         * means conversation loading is complete.
+                         *
+                         * If the snapshot is empty, that is a valid
+                         * empty conversation, NOT an error.
+                         */
+                        if (
+                            _uiState.value
+                                    !is ChatUiState.Ready
+                        ) {
+
+                            _uiState.value =
+                                ChatUiState.Ready
+
+
+                            _events.send(
+                                ChatEvent.ChatReady(
+                                    chatId
+                                )
+                            )
+                        }
+
+
+                        /*
+                         * Keep unread state cleared when a new
+                         * received message arrives while the
+                         * conversation is already open.
                          */
                         val latestMessage =
                             messages.lastOrNull()
+
 
                         if (
                             latestMessage != null &&
@@ -447,9 +649,9 @@ class ChatViewModel @Inject constructor(
     }
 
 
-    // ─────────────────────────────────────
-    // Send
-    // ─────────────────────────────────────
+    // =========================================================
+    // Send message
+    // =========================================================
 
     fun sendMessage(
         text: String
@@ -458,49 +660,69 @@ class ChatViewModel @Inject constructor(
         val cleanText =
             text.trim()
 
-        if (cleanText.isBlank()) {
+
+        if (
+            cleanText.isBlank()
+        ) {
+
             return
         }
 
+
         val uid =
-            authRepository.getCurrentUid()
+            authRepository
+                .getCurrentUid()
 
-        if (uid.isNullOrBlank()) {
 
-            sendError(
-                "Session expired"
+        if (
+            uid.isNullOrBlank()
+        ) {
+
+            sendEventError(
+                "Your session has expired."
             )
 
             return
         }
+
 
         val currentChatId =
             _chatId.value
 
-        if (currentChatId.isBlank()) {
 
-            sendError(
-                "Chat is not ready yet"
+        if (
+            currentChatId.isBlank() ||
+            _uiState.value
+                    !is ChatUiState.Ready
+        ) {
+
+            sendEventError(
+                "Conversation is still opening."
             )
 
             return
         }
 
+
         viewModelScope.launch {
 
             val result =
-                chatRepository.sendMessage(
-                    chatId =
-                        currentChatId,
+                chatRepository
+                    .sendMessage(
+                        chatId =
+                            currentChatId,
 
-                    senderId =
-                        uid,
+                        senderId =
+                            uid,
 
-                    text =
-                        cleanText
-                )
+                        text =
+                            cleanText
+                    )
 
-            if (result.isSuccess) {
+
+            if (
+                result.isSuccess
+            ) {
 
                 _events.send(
                     ChatEvent.MessageSent
@@ -510,9 +732,10 @@ class ChatViewModel @Inject constructor(
 
                 _events.send(
                     ChatEvent.Error(
-                        result.exceptionOrNull()
+                        result
+                            .exceptionOrNull()
                             ?.message
-                            ?: "Message could not be sent"
+                            ?: "Message could not be sent."
                     )
                 )
             }
@@ -520,7 +743,33 @@ class ChatViewModel @Inject constructor(
     }
 
 
-    private fun sendError(
+    // =========================================================
+    // Helpers
+    // =========================================================
+
+    private fun showScreenError(
+        message: String
+    ) {
+
+        messagesJob?.cancel()
+
+
+        _messages.value =
+            emptyList()
+
+
+        _chatId.value =
+            ""
+
+
+        _uiState.value =
+            ChatUiState.Error(
+                message
+            )
+    }
+
+
+    private fun sendEventError(
         message: String
     ) {
 
@@ -533,8 +782,47 @@ class ChatViewModel @Inject constructor(
             )
         }
     }
+
+
+    override fun onCleared() {
+        super.onCleared()
+
+        messagesJob?.cancel()
+
+        inboxJob?.cancel()
+
+        unreadJob?.cancel()
+    }
 }
 
+
+// =============================================================
+// Screen state
+// =============================================================
+
+sealed class ChatUiState {
+
+    object Idle :
+        ChatUiState()
+
+
+    object Opening :
+        ChatUiState()
+
+
+    object Ready :
+        ChatUiState()
+
+
+    data class Error(
+        val message: String
+    ) : ChatUiState()
+}
+
+
+// =============================================================
+// One-time events
+// =============================================================
 
 sealed class ChatEvent {
 
@@ -542,7 +830,10 @@ sealed class ChatEvent {
         val chatId: String
     ) : ChatEvent()
 
-    object MessageSent : ChatEvent()
+
+    object MessageSent :
+        ChatEvent()
+
 
     data class Error(
         val message: String
