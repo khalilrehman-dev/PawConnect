@@ -7,7 +7,7 @@
     app:startDestination="@id/ownerHomeFragment">
 
 
-    <!-- New MainActivity destination -->
+    <!-- Home -->
 
     <fragment
         android:id="@+id/ownerHomeFragment"
@@ -15,21 +15,23 @@
         android:label="Home" />
 
 
-    <!-- Temporary migration destinations.
-         These existing Activities remain functional
-         until each one is converted to a proper Fragment. -->
+    <!-- My Pets -->
 
-    <activity
+    <fragment
         android:id="@+id/ownerPetsDestination"
-        android:name="com.example.authapp.ui.pets.MyPetsActivity"
+        android:name="com.example.authapp.ui.pets.MyPetsFragment"
         android:label="My Pets" />
 
 
-    <activity
+    <!-- Discover -->
+
+    <fragment
         android:id="@+id/ownerDiscoverDestination"
-        android:name="com.example.authapp.ui.discover.DiscoverActivity"
+        android:name="com.example.authapp.ui.discover.DiscoverFragment"
         android:label="Discover" />
 
+
+    <!-- Temporary Activity destinations -->
 
     <activity
         android:id="@+id/ownerAppointmentsDestination"
@@ -41,6 +43,5 @@
         android:id="@+id/ownerMessagesDestination"
         android:name="com.example.authapp.ui.Chat.InboxActivity"
         android:label="Messages" />
-
 
 </navigation>

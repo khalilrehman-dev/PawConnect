@@ -7,53 +7,187 @@ import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import coil.load
-import coil.transform.RoundedCornersTransformation
 import com.example.authapp.R
 import com.example.authapp.model.Pet
+
 
 class PetAdapter(
     private val onPetClick: (Pet) -> Unit
 ) : RecyclerView.Adapter<PetAdapter.PetViewHolder>() {
 
-    private val pets = mutableListOf<Pet>()
+    private val pets =
+        mutableListOf<Pet>()
 
-    fun submitList(newPets: List<Pet>) {
+
+    fun submitList(
+        newPets: List<Pet>
+    ) {
+
         pets.clear()
-        pets.addAll(newPets)
+
+        pets.addAll(
+            newPets
+        )
+
         notifyDataSetChanged()
     }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): PetViewHolder {
-        val view = LayoutInflater.from(parent.context)
-            .inflate(R.layout.item_pet, parent, false)
-        return PetViewHolder(view)
+
+    override fun onCreateViewHolder(
+        parent: ViewGroup,
+        viewType: Int
+    ): PetViewHolder {
+
+        val view =
+            LayoutInflater
+                .from(parent.context)
+                .inflate(
+                    R.layout.item_pet,
+                    parent,
+                    false
+                )
+
+        return PetViewHolder(
+            view
+        )
     }
 
-    override fun onBindViewHolder(holder: PetViewHolder, position: Int) {
-        holder.bind(pets[position])
+
+    override fun onBindViewHolder(
+        holder: PetViewHolder,
+        position: Int
+    ) {
+
+        holder.bind(
+            pets[position]
+        )
     }
 
-    override fun getItemCount() = pets.size
 
-    inner class PetViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val ivPet: ImageView   = itemView.findViewById(R.id.ivPetImage)
-        private val tvName: TextView   = itemView.findViewById(R.id.tvPetName)
-        private val tvBreed: TextView  = itemView.findViewById(R.id.tvPetBreed)
-        private val tvAge: TextView    = itemView.findViewById(R.id.tvPetAge)
+    override fun getItemCount():
+            Int {
 
-        fun bind(pet: Pet) {
-            tvName.text  = pet.name
-            tvBreed.text = "${pet.species} • ${pet.breed}"
-            tvAge.text   = "${pet.age} yr${if (pet.age != 1) "s" else ""} • ${pet.gender}"
+        return pets.size
+    }
 
-            ivPet.load(pet.imageUrl) {
-                crossfade(true)
-                placeholder(R.drawable.ic_pet_placeholder)
-                error(R.drawable.ic_pet_placeholder)
-                transformations(RoundedCornersTransformation(12f))
+
+    inner class PetViewHolder(
+        itemView: View
+    ) : RecyclerView.ViewHolder(
+        itemView
+    ) {
+
+        private val ivPet:
+                ImageView =
+            itemView.findViewById(
+                R.id.ivPetImage
+            )
+
+        private val tvName:
+                TextView =
+            itemView.findViewById(
+                R.id.tvPetName
+            )
+
+        private val tvBreed:
+                TextView =
+            itemView.findViewById(
+                R.id.tvPetBreed
+            )
+
+        private val tvAge:
+                TextView =
+            itemView.findViewById(
+                R.id.tvPetAge
+            )
+
+
+        fun bind(
+            pet: Pet
+        ) {
+
+            tvName.text =
+                pet.name
+
+
+            tvBreed.text =
+                buildString {
+
+                    append(
+                        pet.species
+                    )
+
+                    if (
+                        pet.breed.isNotBlank()
+                    ) {
+
+                        append(
+                            " • "
+                        )
+
+                        append(
+                            pet.breed
+                        )
+                    }
+                }
+
+
+            tvAge.text =
+                buildString {
+
+                    append(
+                        pet.age
+                    )
+
+                    append(
+                        if (pet.age == 1) {
+                            " yr"
+                        } else {
+                            " yrs"
+                        }
+                    )
+
+
+                    if (
+                        pet.gender.isNotBlank()
+                    ) {
+
+                        append(
+                            " • "
+                        )
+
+                        append(
+                            pet.gender
+                        )
+                    }
+                }
+
+
+            ivPet.load(
+                pet.imageUrl
+            ) {
+
+                crossfade(
+                    true
+                )
+
+                placeholder(
+                    R.drawable.ic_pet_placeholder
+                )
+
+                error(
+                    R.drawable.ic_pet_placeholder
+                )
             }
 
-            itemView.setOnClickListener { onPetClick(pet) }
+
+            itemView
+                .setOnClickListener {
+
+                    onPetClick(
+                        pet
+                    )
+                }
         }
     }
 }
