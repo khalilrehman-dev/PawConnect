@@ -1,143 +1,312 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootBookAppointment"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5">
+    android:background="@color/paw_background"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
 
-        <!-- Vet info card -->
+    <!-- Toolbar -->
+
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbarBookAppointment"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/paw_background"
+        app:title="Book Appointment"
+        app:titleTextColor="@color/paw_text_primary"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollBookAppointment"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toBottomOf="@id/toolbarBookAppointment"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/card_background"
-            android:padding="16dp"
-            android:layout_marginBottom="16dp">
+            android:paddingStart="@dimen/paw_screen_horizontal"
+            android:paddingEnd="@dimen/paw_screen_horizontal"
+            android:paddingBottom="@dimen/paw_space_2xl">
+
+
+            <!-- Intro -->
 
             <TextView
-                android:id="@+id/tvVetName"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Dr. Name"
-                android:textSize="18sp"
-                android:textStyle="bold"
-                android:textColor="#1A1A1A" />
+                android:layout_marginTop="@dimen/paw_space_lg"
+                android:text="Appointment details"
+                android:textAppearance="@style/Paw.Text.Headline" />
+
 
             <TextView
-                android:id="@+id/tvClinicName"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Clinic Name"
-                android:textSize="14sp"
-                android:textColor="#666666"
-                android:layout_marginTop="4dp" />
+                android:layout_marginTop="@dimen/paw_space_xxs"
+                android:text="Choose your pet and a suitable date and time."
+                android:textAppearance="@style/Paw.Text.BodySecondary" />
+
+
+            <!-- Vet Summary -->
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Paw.Card.Flat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_lg">
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/paw_space_lg">
+
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Veterinarian"
+                        android:textAppearance="@style/Paw.Text.Caption" />
+
+
+                    <TextView
+                        android:id="@+id/tvVetName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/paw_space_xxs"
+                        android:text="Dr. Name"
+                        android:textAppearance="@style/Paw.Text.TitleLarge" />
+
+
+                    <TextView
+                        android:id="@+id/tvClinicName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/paw_space_xxs"
+                        android:text="Clinic"
+                        android:textAppearance="@style/Paw.Text.BodySecondary" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+
+            <!-- Pet -->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_xl"
+                android:text="Select pet"
+                android:textAppearance="@style/Paw.Text.Label" />
+
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Paw.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_xs">
+
+
+                <Spinner
+                    android:id="@+id/spinnerPet"
+                    android:layout_width="match_parent"
+                    android:layout_height="56dp"
+                    android:paddingStart="@dimen/paw_space_md"
+                    android:paddingEnd="@dimen/paw_space_md"
+                    android:spinnerMode="dropdown" />
+
+            </com.google.android.material.card.MaterialCardView>
+
+
+            <!-- Date and Time -->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_xl"
+                android:text="Schedule"
+                android:textAppearance="@style/Paw.Text.Label" />
+
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_xs"
+                android:orientation="horizontal">
+
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Paw.Card"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
+
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/paw_space_md">
+
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Date"
+                            android:textAppearance="@style/Paw.Text.Caption" />
+
+
+                        <TextView
+                            android:id="@+id/tvDate"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/paw_space_xs"
+                            android:minHeight="32dp"
+                            android:gravity="center_vertical"
+                            android:text="Select date"
+                            android:textAppearance="@style/Paw.Text.Body"
+                            android:textColor="@color/paw_primary" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+
+                <Space
+                    android:layout_width="@dimen/paw_space_sm"
+                    android:layout_height="1dp" />
+
+
+                <com.google.android.material.card.MaterialCardView
+                    style="@style/Paw.Card"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground">
+
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:orientation="vertical"
+                        android:padding="@dimen/paw_space_md">
+
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Time"
+                            android:textAppearance="@style/Paw.Text.Caption" />
+
+
+                        <TextView
+                            android:id="@+id/tvTime"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="@dimen/paw_space_xs"
+                            android:minHeight="32dp"
+                            android:gravity="center_vertical"
+                            android:text="Select time"
+                            android:textAppearance="@style/Paw.Text.Body"
+                            android:textColor="@color/paw_primary" />
+
+                    </LinearLayout>
+
+                </com.google.android.material.card.MaterialCardView>
+
+            </LinearLayout>
+
+
+            <!-- Reason -->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_xl"
+                android:text="Reason for visit"
+                android:textAppearance="@style/Paw.Text.Label" />
+
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Paw.TextInput"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_xs"
+                android:hint="Optional note">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etNote"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top"
+                    android:inputType="textCapSentences|textMultiLine"
+                    android:maxLength="300"
+                    android:minLines="3"
+                    android:textColor="@color/paw_text_primary" />
+
+            </com.google.android.material.textfield.TextInputLayout>
+
+
+            <!-- Booking explanation -->
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_md"
+                android:text="The veterinarian will review your appointment request."
+                android:textAppearance="@style/Paw.Text.Caption" />
+
+
+            <!-- Confirm -->
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBook"
+                style="@style/Paw.Button.Primary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_xl"
+                android:text="Request appointment"
+                app:icon="@drawable/ic_nav_calendar"
+                app:iconGravity="textStart"
+                app:iconPadding="@dimen/paw_space_xs" />
+
+
+            <com.google.android.material.progressindicator.CircularProgressIndicator
+                android:id="@+id/progressBar"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center_horizontal"
+                android:layout_marginTop="@dimen/paw_space_md"
+                android:indeterminate="true"
+                android:visibility="gone"
+                app:indicatorColor="@color/paw_primary" />
 
         </LinearLayout>
 
-        <!-- Select Pet -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Select Pet"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:textColor="#1A1A1A"
-            android:layout_marginBottom="6dp" />
+    </androidx.core.widget.NestedScrollView>
 
-        <Spinner
-            android:id="@+id/spinnerPet"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:background="@drawable/spinner_background"
-            android:paddingStart="12dp"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Date -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Select Date"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:textColor="#1A1A1A"
-            android:layout_marginBottom="6dp" />
-
-        <TextView
-            android:id="@+id/tvDate"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:text="Tap to select date"
-            android:textColor="#888888"
-            android:textSize="14sp"
-            android:gravity="center_vertical"
-            android:paddingStart="12dp"
-            android:background="@drawable/spinner_background"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Time -->
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Select Time"
-            android:textSize="13sp"
-            android:textStyle="bold"
-            android:textColor="#1A1A1A"
-            android:layout_marginBottom="6dp" />
-
-        <TextView
-            android:id="@+id/tvTime"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:text="Tap to select time"
-            android:textColor="#888888"
-            android:textSize="14sp"
-            android:gravity="center_vertical"
-            android:paddingStart="12dp"
-            android:background="@drawable/spinner_background"
-            android:layout_marginBottom="16dp" />
-
-        <!-- Note -->
-        <com.google.android.material.textfield.TextInputLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:hint="Reason for visit (optional)"
-            style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
-            app:boxStrokeColor="#1A1A1A"
-            app:hintTextColor="#1A1A1A"
-            android:layout_marginBottom="24dp">
-            <com.google.android.material.textfield.TextInputEditText
-                android:id="@+id/etNote"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="#1A1A1A"
-                android:inputType="textMultiLine"
-                android:minLines="3"
-                android:gravity="top" />
-        </com.google.android.material.textfield.TextInputLayout>
-
-        <Button
-            android:id="@+id/btnBook"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:text="Confirm Appointment"
-            android:backgroundTint="#1A1A1A"
-            android:textColor="#FFFFFF"
-            android:textSize="16sp" />
-
-        <ProgressBar
-            android:id="@+id/progressBar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:layout_marginTop="12dp"
-            android:visibility="gone"
-            android:indeterminate="true" />
-
-    </LinearLayout>
-</ScrollView>
+</androidx.constraintlayout.widget.ConstraintLayout>

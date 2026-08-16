@@ -1,127 +1,271 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/rootVetDetail"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F5F5">
+    android:background="@color/paw_background">
 
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical">
 
-        <!-- Photo -->
-        <ImageView
-            android:id="@+id/ivVetPhoto"
-            android:layout_width="match_parent"
-            android:layout_height="220dp"
-            android:scaleType="centerCrop"
-            android:background="#E0E0E0"
-            android:src="@drawable/ic_pet_placeholder" />
+    <!-- Toolbar -->
 
-        <!-- Info card -->
+    <com.google.android.material.appbar.MaterialToolbar
+        android:id="@+id/toolbarVetDetail"
+        android:layout_width="0dp"
+        android:layout_height="?attr/actionBarSize"
+        android:background="@color/paw_background"
+        app:title="Veterinarian Profile"
+        app:titleTextColor="@color/paw_text_primary"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
+
+
+    <androidx.core.widget.NestedScrollView
+        android:id="@+id/scrollVetDetail"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:fillViewport="true"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toBottomOf="@id/toolbarVetDetail"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent">
+
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
-            android:background="@drawable/card_background"
-            android:padding="20dp"
-            android:layout_margin="16dp">
+            android:paddingStart="@dimen/paw_screen_horizontal"
+            android:paddingEnd="@dimen/paw_screen_horizontal"
+            android:paddingBottom="@dimen/paw_space_2xl">
 
-            <TextView
-                android:id="@+id/tvVetName"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Dr. Name"
-                android:textSize="22sp"
-                android:textStyle="bold"
-                android:textColor="#1A1A1A" />
 
-            <TextView
-                android:id="@+id/tvSpecialization"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Specialization"
-                android:textSize="14sp"
-                android:textColor="#666666"
-                android:layout_marginTop="4dp" />
+            <!-- Vet Header -->
 
-            <View
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="#F0F0F0"
-                android:layout_marginTop="14dp"
-                android:layout_marginBottom="14dp" />
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_lg"
+                android:gravity="center"
+                android:orientation="vertical">
+
+
+                <com.google.android.material.imageview.ShapeableImageView
+                    android:id="@+id/ivVetPhoto"
+                    android:layout_width="112dp"
+                    android:layout_height="112dp"
+                    android:background="@color/paw_surface_variant"
+                    android:contentDescription="Veterinarian photo"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ic_profile"
+                    app:shapeAppearanceOverlay="@style/PawConnectCircleShape" />
+
+
+                <TextView
+                    android:id="@+id/tvVetName"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/paw_space_md"
+                    android:gravity="center"
+                    android:text="Dr. Name"
+                    android:textAlignment="center"
+                    android:textAppearance="@style/Paw.Text.Headline" />
+
+
+                <TextView
+                    android:id="@+id/tvSpecialization"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/paw_space_xxs"
+                    android:gravity="center"
+                    android:text="General Practice"
+                    android:textAlignment="center"
+                    android:textColor="@color/paw_primary"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+
+            </LinearLayout>
+
+
+            <!-- Professional Information -->
 
             <TextView
-                android:id="@+id/tvClinicName"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Clinic Name"
-                android:textSize="14sp"
-                android:textColor="#1A1A1A"
-                android:layout_marginBottom="6dp" />
+                android:layout_marginTop="@dimen/paw_space_2xl"
+                android:text="Professional information"
+                android:textAppearance="@style/Paw.Text.TitleLarge" />
+
+
+            <com.google.android.material.card.MaterialCardView
+                style="@style/Paw.Card"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_sm">
+
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="@dimen/paw_space_lg">
+
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Clinic"
+                        android:textAppearance="@style/Paw.Text.Caption" />
+
+
+                    <TextView
+                        android:id="@+id/tvClinicName"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/paw_space_xxs"
+                        android:text="Clinic name"
+                        android:textAppearance="@style/Paw.Text.Body" />
+
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="@dimen/paw_space_md"
+                        android:layout_marginBottom="@dimen/paw_space_md"
+                        android:background="@color/paw_divider" />
+
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="City"
+                        android:textAppearance="@style/Paw.Text.Caption" />
+
+
+                    <TextView
+                        android:id="@+id/tvCity"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/paw_space_xxs"
+                        android:text="City"
+                        android:textAppearance="@style/Paw.Text.Body" />
+
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="@dimen/paw_space_md"
+                        android:layout_marginBottom="@dimen/paw_space_md"
+                        android:background="@color/paw_divider" />
+
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Clinic address"
+                        android:textAppearance="@style/Paw.Text.Caption" />
+
+
+                    <TextView
+                        android:id="@+id/tvAddress"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/paw_space_xxs"
+                        android:text="Address"
+                        android:textAppearance="@style/Paw.Text.Body" />
+
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="@dimen/paw_space_md"
+                        android:layout_marginBottom="@dimen/paw_space_md"
+                        android:background="@color/paw_divider" />
+
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Phone"
+                        android:textAppearance="@style/Paw.Text.Caption" />
+
+
+                    <TextView
+                        android:id="@+id/tvPhone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/paw_space_xxs"
+                        android:text="Phone number"
+                        android:textAppearance="@style/Paw.Text.Body" />
+
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_marginTop="@dimen/paw_space_md"
+                        android:layout_marginBottom="@dimen/paw_space_md"
+                        android:background="@color/paw_divider" />
+
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Experience"
+                        android:textAppearance="@style/Paw.Text.Caption" />
+
+
+                    <TextView
+                        android:id="@+id/tvExperience"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/paw_space_xxs"
+                        android:text="5 years of experience"
+                        android:textAppearance="@style/Paw.Text.Body" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+
+            <!-- Actions -->
 
             <TextView
-                android:id="@+id/tvCity"
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="City"
-                android:textSize="13sp"
-                android:textColor="#888888"
-                android:layout_marginBottom="4dp" />
+                android:layout_marginTop="@dimen/paw_space_2xl"
+                android:text="Contact &amp; appointment"
+                android:textAppearance="@style/Paw.Text.TitleLarge" />
 
-            <TextView
-                android:id="@+id/tvAddress"
-                android:layout_width="wrap_content"
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btnBookAppointment"
+                style="@style/Paw.Button.Primary"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Address"
-                android:textSize="13sp"
-                android:textColor="#888888"
-                android:layout_marginBottom="4dp" />
+                android:layout_marginTop="@dimen/paw_space_sm"
+                android:text="Book appointment"
+                app:icon="@drawable/ic_nav_calendar"
+                app:iconGravity="textStart"
+                app:iconPadding="@dimen/paw_space_xs" />
 
-            <TextView
-                android:id="@+id/tvExperience"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Experience"
-                android:textSize="13sp"
-                android:textColor="#888888" />
 
-        </LinearLayout>
-
-        <!-- Buttons -->
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingStart="16dp"
-            android:paddingEnd="16dp"
-            android:paddingBottom="24dp">
-
-            <Button
-                android:id="@+id/btnCall"
-                android:layout_width="0dp"
-                android:layout_height="52dp"
-                android:layout_weight="1"
-                android:layout_marginEnd="8dp"
-                android:text="📅  Book"
-                android:backgroundTint="#1A1A1A"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp" />
-
-            <Button
+            <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnMessage"
-                android:layout_width="0dp"
-                android:layout_height="52dp"
-                android:layout_weight="1"
-                android:layout_marginStart="8dp"
-                android:text="💬  Message"
-                android:backgroundTint="#F0F0F0"
-                android:textColor="#1A1A1A"
-                android:textSize="14sp" />
+                style="@style/Paw.Button.Secondary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/paw_space_sm"
+                android:text="Send message"
+                app:icon="@drawable/ic_nav_messages"
+                app:iconGravity="textStart"
+                app:iconPadding="@dimen/paw_space_xs" />
 
         </LinearLayout>
 
-    </LinearLayout>
-</ScrollView>
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

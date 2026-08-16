@@ -1,25 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.cardview.widget.CardView
+
+<com.google.android.material.card.MaterialCardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/Paw.Card"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="10dp"
-    app:cardCornerRadius="12dp"
-    app:cardElevation="2dp"
-    app:cardBackgroundColor="#FFFFFF">
+    android:layout_marginBottom="@dimen/paw_space_sm">
+
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="16dp">
+        android:padding="@dimen/paw_space_lg">
+
+
+        <!-- Vet + Status -->
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
 
             <LinearLayout
                 android:layout_width="0dp"
@@ -27,94 +31,176 @@
                 android:layout_weight="1"
                 android:orientation="vertical">
 
+
                 <TextView
                     android:id="@+id/tvVetName"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:ellipsize="end"
+                    android:maxLines="1"
                     android:text="Dr. Name"
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="#1A1A1A" />
+                    android:textAppearance="@style/Paw.Text.Title" />
+
 
                 <TextView
                     android:id="@+id/tvClinic"
-                    android:layout_width="wrap_content"
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/paw_space_xxs"
+                    android:ellipsize="end"
+                    android:maxLines="1"
                     android:text="Clinic"
-                    android:textSize="13sp"
-                    android:textColor="#666666"
-                    android:layout_marginTop="2dp" />
+                    android:textAppearance="@style/Paw.Text.BodySecondary" />
 
             </LinearLayout>
 
-            <TextView
+
+            <com.google.android.material.chip.Chip
                 android:id="@+id/tvStatus"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="⏳ Pending"
-                android:textSize="13sp"
-                android:textStyle="bold" />
+                android:layout_marginStart="@dimen/paw_space_sm"
+                android:clickable="false"
+                android:focusable="false"
+                android:text="Pending"
+                android:textSize="12sp"
+                app:chipMinHeight="32dp" />
 
         </LinearLayout>
+
 
         <View
             android:layout_width="match_parent"
             android:layout_height="1dp"
-            android:background="#F0F0F0"
-            android:layout_marginTop="10dp"
-            android:layout_marginBottom="10dp" />
+            android:layout_marginTop="@dimen/paw_space_md"
+            android:layout_marginBottom="@dimen/paw_space_md"
+            android:background="@color/paw_divider" />
 
-        <TextView
-            android:id="@+id/tvPetName"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Pet: Bruno"
-            android:textSize="13sp"
-            android:textColor="#444444" />
+
+        <!-- Pet -->
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_marginTop="6dp">
+            android:gravity="center_vertical"
+            android:orientation="horizontal">
+
+
+            <ImageView
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:contentDescription="Pet"
+                android:src="@drawable/ic_nav_pets"
+                app:tint="@color/paw_primary" />
+
 
             <TextView
-                android:id="@+id/tvDate"
+                android:id="@+id/tvPetName"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/paw_space_sm"
                 android:layout_weight="1"
-                android:text="Date"
-                android:textSize="13sp"
-                android:textColor="#444444" />
-
-            <TextView
-                android:id="@+id/tvTime"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Time"
-                android:textSize="13sp"
-                android:textColor="#444444" />
+                android:text="Pet"
+                android:textAppearance="@style/Paw.Text.Body" />
 
         </LinearLayout>
 
-        <TextView
-            android:id="@+id/tvNote"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text=""
-            android:textSize="12sp"
-            android:textColor="#888888"
-            android:layout_marginTop="4dp" />
 
-        <Button
-            android:id="@+id/btnCancelAppointment"
+        <!-- Date and Time -->
+
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="44dp"
-            android:layout_marginTop="12dp"
-            android:text="Cancel Appointment"
-            android:textAllCaps="false"
-            android:textColor="#C62828"
-            android:visibility="gone" />
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/paw_space_md"
+            android:orientation="horizontal">
+
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Date"
+                    android:textAppearance="@style/Paw.Text.Caption" />
+
+
+                <TextView
+                    android:id="@+id/tvDate"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/paw_space_xxs"
+                    android:text="18/8/2026"
+                    android:textAppearance="@style/Paw.Text.Body" />
+
+            </LinearLayout>
+
+
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:orientation="vertical">
+
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Time"
+                    android:textAppearance="@style/Paw.Text.Caption" />
+
+
+                <TextView
+                    android:id="@+id/tvTime"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/paw_space_xxs"
+                    android:text="3:30 PM"
+                    android:textAppearance="@style/Paw.Text.Body" />
+
+            </LinearLayout>
+
+        </LinearLayout>
+
+
+        <!-- Note -->
+
+        <com.google.android.material.card.MaterialCardView
+            android:id="@+id/cardAppointmentNote"
+            style="@style/Paw.Card.Flat"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/paw_space_md">
+
+
+            <TextView
+                android:id="@+id/tvNote"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="@dimen/paw_space_sm"
+                android:text="Appointment note"
+                android:textAppearance="@style/Paw.Text.BodySecondary" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+
+        <!-- Cancel -->
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancelAppointment"
+            style="@style/Paw.Button.Secondary"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/paw_space_md"
+            android:text="Cancel appointment"
+            android:textColor="@color/paw_error"
+            android:visibility="gone"
+            app:strokeColor="@color/paw_error" />
 
     </LinearLayout>
-</androidx.cardview.widget.CardView>
+
+</com.google.android.material.card.MaterialCardView>

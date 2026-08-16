@@ -31,13 +31,15 @@
         android:label="Discover" />
 
 
-    <!-- Temporary Activity destinations -->
+    <!-- Appointments -->
 
-    <activity
+    <fragment
         android:id="@+id/ownerAppointmentsDestination"
-        android:name="com.example.authapp.ui.Appointments.MyAppointmentsActivity"
+        android:name="com.example.authapp.ui.Appointments.MyAppointmentsFragment"
         android:label="Appointments" />
 
+
+    <!-- Messages still temporary Activity destination -->
 
     <activity
         android:id="@+id/ownerMessagesDestination"
